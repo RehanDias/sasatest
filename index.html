@@ -1,476 +1,1426 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Discord Webhook — Bola Ubi</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0d0d0f;
-  --surface:#17181c;
-  --surface2:#1f2026;
-  --surface3:#26272e;
-  --border:rgba(255,255,255,0.07);
-  --border2:rgba(255,255,255,0.12);
-  --text:#e3e5e8;
-  --muted:#72767d;
-  --accent:#5865f2;
-  --accent-hover:#4752c4;
-  --green:#3ba55c;
-  --red:#ed4245;
-  --yellow:#faa61a;
-  --radius:10px;
-  --radius-sm:6px;
-}
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+        <title>Discord Webhook — Bola Ubi</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            :root {
+                --bg: #0d0d0f;
+                --surface: #17181c;
+                --surface2: #1f2026;
+                --surface3: #26272e;
+                --border: rgba(255, 255, 255, 0.07);
+                --border2: rgba(255, 255, 255, 0.12);
+                --text: #e3e5e8;
+                --muted: #72767d;
+                --accent: #5865f2;
+                --accent-hover: #4752c4;
+                --green: #3ba55c;
+                --red: #ed4245;
+                --yellow: #faa61a;
+                --radius: 10px;
+                --radius-sm: 6px;
+            }
+            html,
+            body {
+                height: 100%;
+                font-family: "DM Sans", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                font-size: 14px;
+            }
 
-/* ── LAYOUT ── */
-.app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
-.workspace{flex:1;display:grid;grid-template-columns:1fr 380px;overflow:hidden}
+            /* ── LAYOUT ── */
+            .app {
+                display: flex;
+                height: 100vh;
+                overflow: hidden;
+            }
+            .sidebar {
+                width: 240px;
+                background: var(--surface);
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                flex-shrink: 0;
+            }
+            .main {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+                overflow: hidden;
+            }
+            .workspace {
+                flex: 1;
+                display: grid;
+                grid-template-columns: 1fr 380px;
+                overflow: hidden;
+            }
 
-/* ── SIDEBAR ── */
-.sb-brand{padding:18px 16px;border-bottom:1px solid var(--border)}
-.sb-logo{display:flex;align-items:center;gap:10px}
-.sb-icon{width:36px;height:36px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.sb-title{font-weight:700;font-size:15px;color:#fff;line-height:1.2}
-.sb-sub{font-size:11px;color:var(--muted);margin-top:1px}
-.sb-section{padding:12px 8px 4px}
-.sb-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:4px}
-.sb-ch{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .13s}
-.sb-ch:hover{background:rgba(255,255,255,0.04);color:var(--text)}
-.sb-ch.active{background:rgba(88,101,242,0.2);color:#fff}
-.sb-ch-icon{width:15px;height:15px;opacity:.7}
-.sb-foot{margin-top:auto;padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.6}
+            /* ── SIDEBAR ── */
+            .sb-brand {
+                padding: 18px 16px;
+                border-bottom: 1px solid var(--border);
+            }
+            .sb-logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .sb-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 10px;
+                background: var(--accent);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+                flex-shrink: 0;
+            }
+            .sb-title {
+                font-weight: 700;
+                font-size: 15px;
+                color: #fff;
+                line-height: 1.2;
+            }
+            .sb-sub {
+                font-size: 11px;
+                color: var(--muted);
+                margin-top: 1px;
+            }
+            .sb-section {
+                padding: 12px 8px 4px;
+            }
+            .sb-label {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--muted);
+                padding: 0 8px;
+                margin-bottom: 4px;
+            }
+            .sb-ch {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 5px 8px;
+                border-radius: var(--radius-sm);
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--muted);
+                cursor: pointer;
+                transition: all 0.13s;
+            }
+            .sb-ch:hover {
+                background: rgba(255, 255, 255, 0.04);
+                color: var(--text);
+            }
+            .sb-ch.active {
+                background: rgba(88, 101, 242, 0.2);
+                color: #fff;
+            }
+            .sb-ch-icon {
+                width: 15px;
+                height: 15px;
+                opacity: 0.7;
+            }
+            .sb-foot {
+                margin-top: auto;
+                padding: 12px 16px;
+                border-top: 1px solid var(--border);
+                font-size: 11px;
+                color: var(--muted);
+                line-height: 1.6;
+            }
 
-/* ── TOPBAR ── */
-.topbar{height:48px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:8px;flex-shrink:0}
-.tb-icon{color:var(--muted)}
-.tb-name{font-size:14px;font-weight:700;color:#fff}
-.tb-sep{color:var(--muted);font-size:13px}
-.tb-desc{font-size:13px;color:var(--muted)}
-.tb-badge{margin-left:auto;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.06em;background:rgba(88,101,242,.15);border:1px solid rgba(88,101,242,.3);color:var(--accent)}
+            /* ── TOPBAR ── */
+            .topbar {
+                height: 48px;
+                background: var(--surface);
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                padding: 0 18px;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+            .tb-icon {
+                color: var(--muted);
+            }
+            .tb-name {
+                font-size: 14px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .tb-sep {
+                color: var(--muted);
+                font-size: 13px;
+            }
+            .tb-desc {
+                font-size: 13px;
+                color: var(--muted);
+            }
+            .tb-badge {
+                margin-left: auto;
+                padding: 3px 10px;
+                border-radius: 20px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                background: rgba(88, 101, 242, 0.15);
+                border: 1px solid rgba(88, 101, 242, 0.3);
+                color: var(--accent);
+            }
 
-/* ── PREVIEW ── */
-.preview{background:#313338;overflow-y:auto;padding:20px 0}
-.pane-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 18px 10px}
-.day-div{display:flex;align-items:center;gap:10px;padding:0 18px 14px}
-.day-line{flex:1;height:1px;background:rgba(255,255,255,.09)}
-.day-text{font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
-.msg-wrap{display:flex;gap:12px;padding:2px 18px 16px;align-items:flex-start}
-.av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#5865f2,#57f287);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
-.av img{width:100%;height:100%;object-fit:cover}
-.msg-body{flex:1;min-width:0}
-.msg-meta{display:flex;align-items:center;gap:7px;margin-bottom:4px;flex-wrap:wrap}
-.msg-botname{font-size:15px;font-weight:700;color:#fff}
-.msg-badge{background:#5865f2;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px}
-.msg-ts{font-size:11px;color:var(--muted)}
-.msg-text{font-size:15px;line-height:1.65;color:#dcddde;white-space:pre-wrap;word-break:break-word}
-.msg-text strong{color:#fff;font-weight:700}
-.msg-text em{font-style:italic}
-.msg-text code{background:#1e1f22;border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:13px}
+            /* ── PREVIEW ── */
+            .preview {
+                background: #313338;
+                overflow-y: auto;
+                padding: 20px 0;
+            }
+            .pane-label {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: var(--muted);
+                padding: 0 18px 10px;
+            }
+            .day-div {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0 18px 14px;
+            }
+            .day-line {
+                flex: 1;
+                height: 1px;
+                background: rgba(255, 255, 255, 0.09);
+            }
+            .day-text {
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--muted);
+                white-space: nowrap;
+            }
+            .msg-wrap {
+                display: flex;
+                gap: 12px;
+                padding: 2px 18px 16px;
+                align-items: flex-start;
+            }
+            .av {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #5865f2, #57f287);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+                flex-shrink: 0;
+                overflow: hidden;
+            }
+            .av img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .msg-body {
+                flex: 1;
+                min-width: 0;
+            }
+            .msg-meta {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                margin-bottom: 4px;
+                flex-wrap: wrap;
+            }
+            .msg-botname {
+                font-size: 15px;
+                font-weight: 700;
+                color: #fff;
+            }
+            .msg-badge {
+                background: #5865f2;
+                color: #fff;
+                font-size: 10px;
+                font-weight: 700;
+                padding: 1px 5px;
+                border-radius: 3px;
+            }
+            .msg-ts {
+                font-size: 11px;
+                color: var(--muted);
+            }
+            .msg-text {
+                font-size: 15px;
+                line-height: 1.65;
+                color: #dcddde;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+            .msg-text strong {
+                color: #fff;
+                font-weight: 700;
+            }
+            .msg-text em {
+                font-style: italic;
+            }
+            .msg-text code {
+                background: #1e1f22;
+                border-radius: 3px;
+                padding: 1px 5px;
+                font-family: "DM Mono", monospace;
+                font-size: 13px;
+            }
 
-/* EMBED PREVIEW */
-.embed-preview{margin-top:8px;display:flex;border-radius:4px;overflow:hidden;max-width:520px}
-.embed-bar{width:4px;flex-shrink:0;border-radius:4px 0 0 4px}
-.embed-content{background:#2b2d31;flex:1;padding:10px 14px 12px;min-width:0}
-.embed-author{display:flex;align-items:center;gap:7px;margin-bottom:5px}
-.embed-author-icon{width:22px;height:22px;border-radius:50%;overflow:hidden;flex-shrink:0}
-.embed-author-icon img{width:100%;height:100%;object-fit:cover}
-.embed-author-name{font-size:13px;font-weight:600;color:#dbdee1}
-.embed-title{font-size:15px;font-weight:700;color:#00aff4;margin-bottom:5px;word-break:break-word}
-.embed-title a{color:#00aff4;text-decoration:none}
-.embed-title a:hover{text-decoration:underline}
-.embed-desc{font-size:14px;line-height:1.6;color:#dcddde;white-space:pre-wrap;word-break:break-word;margin-bottom:8px}
-.embed-desc strong{color:#fff;font-weight:700}
-.embed-desc em{font-style:italic}
-.embed-desc code{background:#1e1f22;border-radius:3px;padding:1px 4px;font-family:'DM Mono',monospace;font-size:12px}
-.embed-fields{display:grid;gap:6px;margin-bottom:8px}
-.embed-field{min-width:0}
-.embed-field-name{font-size:13px;font-weight:700;color:#dbdee1;margin-bottom:2px}
-.embed-field-value{font-size:14px;color:#dcddde;white-space:pre-wrap;word-break:break-word}
-.embed-image{margin-top:10px;border-radius:4px;overflow:hidden;max-width:100%}
-.embed-image img{width:100%;display:block;border-radius:4px}
-.embed-thumb{float:right;margin-left:14px;width:80px;height:80px;border-radius:4px;overflow:hidden;flex-shrink:0}
-.embed-thumb img{width:100%;height:100%;object-fit:cover;border-radius:4px}
-.embed-footer{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
-.embed-footer-icon{width:20px;height:20px;border-radius:50%;overflow:hidden;flex-shrink:0}
-.embed-footer-icon img{width:100%;height:100%;object-fit:cover}
-.embed-footer-text{font-size:12px;color:var(--muted)}
+            /* EMBED PREVIEW */
+            .embed-preview {
+                margin-top: 8px;
+                display: flex;
+                border-radius: 4px;
+                overflow: hidden;
+                max-width: 520px;
+            }
+            .embed-bar {
+                width: 4px;
+                flex-shrink: 0;
+                border-radius: 4px 0 0 4px;
+            }
+            .embed-content {
+                background: #2b2d31;
+                flex: 1;
+                padding: 10px 14px 12px;
+                min-width: 0;
+            }
+            .embed-author {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                margin-bottom: 5px;
+            }
+            .embed-author-icon {
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                overflow: hidden;
+                flex-shrink: 0;
+            }
+            .embed-author-icon img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .embed-author-name {
+                font-size: 13px;
+                font-weight: 600;
+                color: #dbdee1;
+            }
+            .embed-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: #00aff4;
+                margin-bottom: 5px;
+                word-break: break-word;
+            }
+            .embed-title a {
+                color: #00aff4;
+                text-decoration: none;
+            }
+            .embed-title a:hover {
+                text-decoration: underline;
+            }
+            .embed-desc {
+                font-size: 14px;
+                line-height: 1.6;
+                color: #dcddde;
+                white-space: pre-wrap;
+                word-break: break-word;
+                margin-bottom: 8px;
+            }
+            .embed-desc strong {
+                color: #fff;
+                font-weight: 700;
+            }
+            .embed-desc em {
+                font-style: italic;
+            }
+            .embed-desc code {
+                background: #1e1f22;
+                border-radius: 3px;
+                padding: 1px 4px;
+                font-family: "DM Mono", monospace;
+                font-size: 12px;
+            }
+            .embed-fields {
+                display: grid;
+                gap: 6px;
+                margin-bottom: 8px;
+            }
+            .embed-field {
+                min-width: 0;
+            }
+            .embed-field-name {
+                font-size: 13px;
+                font-weight: 700;
+                color: #dbdee1;
+                margin-bottom: 2px;
+            }
+            .embed-field-value {
+                font-size: 14px;
+                color: #dcddde;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+            .embed-image {
+                margin-top: 10px;
+                border-radius: 4px;
+                overflow: hidden;
+                max-width: 100%;
+            }
+            .embed-image img {
+                width: 100%;
+                display: block;
+                border-radius: 4px;
+            }
+            .embed-thumb {
+                float: right;
+                margin-left: 14px;
+                width: 80px;
+                height: 80px;
+                border-radius: 4px;
+                overflow: hidden;
+                flex-shrink: 0;
+            }
+            .embed-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            .embed-footer {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-top: 10px;
+                padding-top: 8px;
+                border-top: 1px solid rgba(255, 255, 255, 0.07);
+            }
+            .embed-footer-icon {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                overflow: hidden;
+                flex-shrink: 0;
+            }
+            .embed-footer-icon img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .embed-footer-text {
+                font-size: 12px;
+                color: var(--muted);
+            }
 
-/* ── EDITOR ── */
-.editor{background:var(--surface);overflow-y:auto;display:flex;flex-direction:column}
-.ed-sec{padding:16px 18px;border-bottom:1px solid var(--border)}
-.ed-sec:last-child{border-bottom:none;padding-bottom:24px}
-.ed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.ed-title{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.ed-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
-.ed-toggle span{font-size:11px;font-weight:600;color:var(--muted)}
-.toggle-sw{position:relative;width:34px;height:18px}
-.toggle-sw input{opacity:0;width:0;height:0;position:absolute}
-.toggle-track{position:absolute;inset:0;background:var(--surface3);border-radius:20px;transition:background .2s;border:1px solid var(--border2)}
-.toggle-thumb{position:absolute;left:2px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:var(--muted);border-radius:50%;transition:left .2s,background .2s}
-.toggle-sw input:checked + .toggle-track{background:rgba(88,101,242,.5);border-color:var(--accent)}
-.toggle-sw input:checked ~ .toggle-thumb{left:18px;background:var(--accent)}
+            /* ── EDITOR ── */
+            .editor {
+                background: var(--surface);
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+            }
+            .ed-sec {
+                padding: 16px 18px;
+                border-bottom: 1px solid var(--border);
+            }
+            .ed-sec:last-child {
+                border-bottom: none;
+                padding-bottom: 24px;
+            }
+            .ed-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 12px;
+            }
+            .ed-title {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.09em;
+                text-transform: uppercase;
+                color: var(--muted);
+            }
+            .ed-toggle {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                cursor: pointer;
+                user-select: none;
+            }
+            .ed-toggle span {
+                font-size: 11px;
+                font-weight: 600;
+                color: var(--muted);
+            }
+            .toggle-sw {
+                position: relative;
+                width: 34px;
+                height: 18px;
+            }
+            .toggle-sw input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+                position: absolute;
+            }
+            .toggle-track {
+                position: absolute;
+                inset: 0;
+                background: var(--surface3);
+                border-radius: 20px;
+                transition: background 0.2s;
+                border: 1px solid var(--border2);
+            }
+            .toggle-thumb {
+                position: absolute;
+                left: 2px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 12px;
+                height: 12px;
+                background: var(--muted);
+                border-radius: 50%;
+                transition:
+                    left 0.2s,
+                    background 0.2s;
+            }
+            .toggle-sw input:checked + .toggle-track {
+                background: rgba(88, 101, 242, 0.5);
+                border-color: var(--accent);
+            }
+            .toggle-sw input:checked ~ .toggle-thumb {
+                left: 18px;
+                background: var(--accent);
+            }
 
-.field-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.field-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+            .field-label {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.07em;
+                text-transform: uppercase;
+                color: var(--muted);
+                margin-bottom: 6px;
+            }
+            .field-hint {
+                font-size: 11px;
+                color: var(--muted);
+                margin-top: 5px;
+                line-height: 1.5;
+            }
+            .row2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .row3 {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 8px;
+            }
 
-input[type=text],input[type=url],textarea,select{
-  width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);
-  color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;outline:none;
-  transition:border-color .15s;-webkit-appearance:none
-}
-input[type=text]:focus,input[type=url]:focus,textarea:focus,select:focus{border-color:rgba(88,101,242,.6);background:var(--surface3)}
-input::placeholder,textarea::placeholder{color:var(--muted)}
-select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2372767d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
-textarea{min-height:90px;resize:vertical;line-height:1.55}
+            input[type="text"],
+            input[type="url"],
+            textarea,
+            select {
+                width: 100%;
+                background: var(--surface2);
+                border: 1px solid var(--border2);
+                border-radius: var(--radius-sm);
+                color: var(--text);
+                font-family: "DM Sans", sans-serif;
+                font-size: 13px;
+                padding: 8px 11px;
+                outline: none;
+                transition: border-color 0.15s;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+            input[type="text"]:focus,
+            input[type="url"]:focus,
+            textarea:focus,
+            select:focus {
+                border-color: rgba(88, 101, 242, 0.6);
+                background: var(--surface3);
+            }
+            input::placeholder,
+            textarea::placeholder {
+                color: var(--muted);
+            }
+            select {
+                cursor: pointer;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2372767d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                padding-right: 28px;
+            }
+            textarea {
+                min-height: 90px;
+                resize: vertical;
+                line-height: 1.55;
+            }
 
-.color-row{display:flex;align-items:center;gap:8px}
-.color-row input[type=color]{width:36px;height:36px;padding:2px;border-radius:var(--radius-sm);cursor:pointer;flex-shrink:0}
-.color-row input[type=text]{flex:1}
+            .color-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .color-row input[type="color"] {
+                width: 36px;
+                height: 36px;
+                padding: 2px;
+                border-radius: var(--radius-sm);
+                cursor: pointer;
+                flex-shrink: 0;
+            }
+            .color-row input[type="text"] {
+                flex: 1;
+            }
 
-.char-count{text-align:right;font-size:11px;color:var(--muted);margin-top:4px}
-.char-count.warn{color:var(--yellow)}
-.char-count.over{color:var(--red)}
+            .char-count {
+                text-align: right;
+                font-size: 11px;
+                color: var(--muted);
+                margin-top: 4px;
+            }
+            .char-count.warn {
+                color: var(--yellow);
+            }
+            .char-count.over {
+                color: var(--red);
+            }
 
-/* FIELDS BUILDER */
-.fields-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
-.field-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;position:relative}
-.field-card-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
-.field-card-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;border-radius:4px;transition:color .15s,background .15s}
-.field-card-del:hover{color:var(--red);background:rgba(237,66,69,.1)}
-.field-inline{display:flex;align-items:center;gap:6px;margin-top:4px}
-.field-inline input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer}
-.field-inline label{font-size:12px;color:var(--muted);cursor:pointer}
+            /* FIELDS BUILDER */
+            .fields-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+            .field-card {
+                background: var(--surface2);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-sm);
+                padding: 10px 12px;
+                position: relative;
+            }
+            .field-card-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 6px;
+            }
+            .field-card-del {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                background: none;
+                border: none;
+                color: var(--muted);
+                cursor: pointer;
+                font-size: 16px;
+                line-height: 1;
+                padding: 2px 4px;
+                border-radius: 4px;
+                transition:
+                    color 0.15s,
+                    background 0.15s;
+            }
+            .field-card-del:hover {
+                color: var(--red);
+                background: rgba(237, 66, 69, 0.1);
+            }
+            .field-inline {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-top: 4px;
+            }
+            .field-inline input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+                accent-color: var(--accent);
+                cursor: pointer;
+            }
+            .field-inline label {
+                font-size: 12px;
+                color: var(--muted);
+                cursor: pointer;
+            }
 
-.add-field-btn{width:100%;padding:7px;border:1px dashed var(--border2);background:none;border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;letter-spacing:.02em}
-.add-field-btn:hover{border-color:rgba(88,101,242,.5);color:var(--accent);background:rgba(88,101,242,.05)}
+            .add-field-btn {
+                width: 100%;
+                padding: 7px;
+                border: 1px dashed var(--border2);
+                background: none;
+                border-radius: var(--radius-sm);
+                color: var(--muted);
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.15s;
+                font-family: "DM Sans", sans-serif;
+                letter-spacing: 0.02em;
+            }
+            .add-field-btn:hover {
+                border-color: rgba(88, 101, 242, 0.5);
+                color: var(--accent);
+                background: rgba(88, 101, 242, 0.05);
+            }
 
-/* WEBHOOK ROW */
-.hook-row{display:flex;gap:8px;align-items:stretch}
-.hook-row input{flex:1}
+            /* WEBHOOK ROW */
+            .hook-row {
+                display: flex;
+                gap: 8px;
+                align-items: stretch;
+            }
+            .hook-row input {
+                flex: 1;
+            }
 
-/* SEND BTN */
-.send-btn{height:36px;padding:0 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s,transform .1s;display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;flex-shrink:0}
-.send-btn:hover:not(:disabled){background:var(--accent-hover)}
-.send-btn:active:not(:disabled){transform:scale(.97)}
-.send-btn:disabled{background:rgba(255,255,255,.08);color:var(--muted);cursor:not-allowed}
+            /* SEND BTN */
+            .send-btn {
+                height: 36px;
+                padding: 0 16px;
+                background: var(--accent);
+                color: #fff;
+                border: none;
+                border-radius: var(--radius-sm);
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                white-space: nowrap;
+                transition:
+                    background 0.15s,
+                    transform 0.1s;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-family: "DM Sans", sans-serif;
+                flex-shrink: 0;
+            }
+            .send-btn:hover:not(:disabled) {
+                background: var(--accent-hover);
+            }
+            .send-btn:active:not(:disabled) {
+                transform: scale(0.97);
+            }
+            .send-btn:disabled {
+                background: rgba(255, 255, 255, 0.08);
+                color: var(--muted);
+                cursor: not-allowed;
+            }
 
-.status{margin-top:8px;font-size:12px;font-weight:600;min-height:18px;color:var(--muted)}
-.status.ok{color:var(--green)}
-.status.err{color:var(--red)}
-.status.loading{color:var(--accent)}
+            .status {
+                margin-top: 8px;
+                font-size: 12px;
+                font-weight: 600;
+                min-height: 18px;
+                color: var(--muted);
+            }
+            .status.ok {
+                color: var(--green);
+            }
+            .status.err {
+                color: var(--red);
+            }
+            .status.loading {
+                color: var(--accent);
+            }
 
-.embed-disabled{opacity:.45;pointer-events:none}
+            .embed-disabled {
+                opacity: 0.45;
+                pointer-events: none;
+            }
 
-@keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:860px){
-  .sidebar{display:none}
-  .workspace{grid-template-columns:1fr}
-  .editor{order:-1;max-height:60vh}
-  .preview{min-height:300px}
-}
-</style>
-</head>
-<body>
-<div class="app">
-
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sb-brand">
-    <div class="sb-logo">
-      <div class="sb-icon">📢</div>
-      <div>
-        <div class="sb-title">Webhook Sender</div>
-        <div class="sb-sub">Discord Announcement Tool</div>
-      </div>
-    </div>
-  </div>
-  <div class="sb-section">
-    <p class="sb-label">Text Channels</p>
-    <div class="sb-ch active">
-      <svg class="sb-ch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      announcements
-    </div>
-    <div class="sb-ch">
-      <svg class="sb-ch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      general
-    </div>
-    <div class="sb-ch">
-      <svg class="sb-ch-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      rules
-    </div>
-  </div>
-  <div class="sb-foot">Kirim pesan & embed langsung<br>ke channel Discord via webhook.</div>
-</aside>
-
-<!-- MAIN -->
-<div class="main">
-  <div class="topbar">
-    <svg class="tb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <span class="tb-name">announcements</span>
-    <span class="tb-sep">·</span>
-    <span class="tb-desc">Pengumuman server</span>
-    <span class="tb-badge">WEBHOOK</span>
-  </div>
-
-  <div class="workspace">
-
-    <!-- PREVIEW -->
-    <div class="preview">
-      <p class="pane-label">Preview pesan</p>
-      <div class="day-div">
-        <div class="day-line"></div>
-        <div class="day-text" id="preview-date">Hari ini</div>
-        <div class="day-line"></div>
-      </div>
-      <div class="msg-wrap">
-        <div class="av" id="av-el">📢</div>
-        <div class="msg-body">
-          <div class="msg-meta">
-            <span class="msg-botname" id="pv-name">Bola Ubi</span>
-            <span class="msg-badge">APP</span>
-            <span class="msg-ts" id="pv-time">Hari ini pukul 10:00</span>
-          </div>
-          <div class="msg-text" id="pv-content"></div>
-          <!-- EMBED -->
-          <div class="embed-preview" id="pv-embed" style="display:none">
-            <div class="embed-bar" id="pv-bar" style="background:#5865f2"></div>
-            <div class="embed-content">
-              <div class="embed-author" id="pv-author" style="display:none">
-                <div class="embed-author-icon" id="pv-author-icon" style="display:none">
-                  <img id="pv-author-icon-img" src="" alt=""/>
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            @media (max-width: 860px) {
+                .sidebar {
+                    display: none;
+                }
+                .workspace {
+                    grid-template-columns: 1fr;
+                }
+                .editor {
+                    order: -1;
+                    max-height: 60vh;
+                }
+                .preview {
+                    min-height: 300px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="sb-brand">
+                    <div class="sb-logo">
+                        <div class="sb-icon">📢</div>
+                        <div>
+                            <div class="sb-title">Webhook Sender</div>
+                            <div class="sb-sub">Discord Announcement Tool</div>
+                        </div>
+                    </div>
                 </div>
-                <span class="embed-author-name" id="pv-author-name"></span>
-              </div>
-              <div class="embed-thumb" id="pv-thumb" style="display:none">
-                <img id="pv-thumb-img" src="" alt="Thumbnail"/>
-              </div>
-              <div class="embed-title" id="pv-title" style="display:none"></div>
-              <div class="embed-desc" id="pv-desc" style="display:none"></div>
-              <div class="embed-fields" id="pv-fields" style="display:none"></div>
-              <div class="embed-image" id="pv-image" style="display:none">
-                <img id="pv-image-img" src="" alt=""/>
-              </div>
-              <div class="embed-footer" id="pv-footer" style="display:none">
-                <div class="embed-footer-icon" id="pv-footer-icon" style="display:none">
-                  <img id="pv-footer-icon-img" src="" alt=""/>
+                <div class="sb-section">
+                    <p class="sb-label">Text Channels</p>
+                    <div class="sb-ch active">
+                        <svg
+                            class="sb-ch-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path
+                                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                            />
+                        </svg>
+                        announcements
+                    </div>
+                    <div class="sb-ch">
+                        <svg
+                            class="sb-ch-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path
+                                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                            />
+                        </svg>
+                        general
+                    </div>
+                    <div class="sb-ch">
+                        <svg
+                            class="sb-ch-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path
+                                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                            />
+                        </svg>
+                        rules
+                    </div>
                 </div>
-                <span class="embed-footer-text" id="pv-footer-text"></span>
-              </div>
+                <div class="sb-foot">
+                    Kirim pesan & embed langsung<br />ke channel Discord via
+                    webhook.
+                </div>
+            </aside>
+
+            <!-- MAIN -->
+            <div class="main">
+                <div class="topbar">
+                    <svg
+                        class="tb-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        width="18"
+                        height="18"
+                    >
+                        <path
+                            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                        />
+                    </svg>
+                    <span class="tb-name">announcements</span>
+                    <span class="tb-sep">·</span>
+                    <span class="tb-desc">Pengumuman server</span>
+                    <span class="tb-badge">WEBHOOK</span>
+                </div>
+
+                <div class="workspace">
+                    <!-- PREVIEW -->
+                    <div class="preview">
+                        <p class="pane-label">Preview pesan</p>
+                        <div class="day-div">
+                            <div class="day-line"></div>
+                            <div class="day-text" id="preview-date">
+                                Hari ini
+                            </div>
+                            <div class="day-line"></div>
+                        </div>
+                        <div class="msg-wrap">
+                            <div class="av" id="av-el">📢</div>
+                            <div class="msg-body">
+                                <div class="msg-meta">
+                                    <span class="msg-botname" id="pv-name"
+                                        >Bola Ubi</span
+                                    >
+                                    <span class="msg-badge">APP</span>
+                                    <span class="msg-ts" id="pv-time"
+                                        >Hari ini pukul 10:00</span
+                                    >
+                                </div>
+                                <div class="msg-text" id="pv-content"></div>
+                                <!-- EMBED -->
+                                <div
+                                    class="embed-preview"
+                                    id="pv-embed"
+                                    style="display: none"
+                                >
+                                    <div
+                                        class="embed-bar"
+                                        id="pv-bar"
+                                        style="background: #5865f2"
+                                    ></div>
+                                    <div class="embed-content">
+                                        <div
+                                            class="embed-author"
+                                            id="pv-author"
+                                            style="display: none"
+                                        >
+                                            <div
+                                                class="embed-author-icon"
+                                                id="pv-author-icon"
+                                                style="display: none"
+                                            >
+                                                <img
+                                                    id="pv-author-icon-img"
+                                                    src=""
+                                                    alt=""
+                                                />
+                                            </div>
+                                            <span
+                                                class="embed-author-name"
+                                                id="pv-author-name"
+                                            ></span>
+                                        </div>
+                                        <div
+                                            class="embed-thumb"
+                                            id="pv-thumb"
+                                            style="display: none"
+                                        >
+                                            <img
+                                                id="pv-thumb-img"
+                                                src=""
+                                                alt="Thumbnail"
+                                            />
+                                        </div>
+                                        <div
+                                            class="embed-title"
+                                            id="pv-title"
+                                            style="display: none"
+                                        ></div>
+                                        <div
+                                            class="embed-desc"
+                                            id="pv-desc"
+                                            style="display: none"
+                                        ></div>
+                                        <div
+                                            class="embed-fields"
+                                            id="pv-fields"
+                                            style="display: none"
+                                        ></div>
+                                        <div
+                                            class="embed-image"
+                                            id="pv-image"
+                                            style="display: none"
+                                        >
+                                            <img
+                                                id="pv-image-img"
+                                                src=""
+                                                alt=""
+                                            />
+                                        </div>
+                                        <div
+                                            class="embed-footer"
+                                            id="pv-footer"
+                                            style="display: none"
+                                        >
+                                            <div
+                                                class="embed-footer-icon"
+                                                id="pv-footer-icon"
+                                                style="display: none"
+                                            >
+                                                <img
+                                                    id="pv-footer-icon-img"
+                                                    src=""
+                                                    alt=""
+                                                />
+                                            </div>
+                                            <span
+                                                class="embed-footer-text"
+                                                id="pv-footer-text"
+                                            ></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EDITOR -->
+                    <div class="editor">
+                        <!-- Identitas -->
+                        <div class="ed-sec">
+                            <div class="ed-header">
+                                <span class="ed-title">Identitas Pengirim</span>
+                            </div>
+                            <div class="row2">
+                                <div>
+                                    <p class="field-label">Nama Bot</p>
+                                    <input
+                                        type="text"
+                                        id="bot-name"
+                                        placeholder="Bola Ubi"
+                                        value="Bola Ubi"
+                                        oninput="render()"
+                                    />
+                                </div>
+                                <div>
+                                    <p class="field-label">URL Avatar</p>
+                                    <input
+                                        type="url"
+                                        id="bot-avatar"
+                                        placeholder="https://..."
+                                        oninput="render()"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pesan biasa -->
+                        <div class="ed-sec">
+                            <div class="ed-header">
+                                <span class="ed-title">Isi Pesan</span>
+                            </div>
+                            <textarea
+                                id="msg-content"
+                                oninput="
+                                    render();
+                                    charCount();
+                                "
+                                placeholder="Ketik pesan di sini... (opsional jika pakai embed)"
+                            ></textarea>
+                            <div class="char-count" id="char-c">0 / 2000</div>
+                            <p class="field-hint">
+                                **bold** · *italic* · `kode`
+                            </p>
+                        </div>
+
+                        <!-- EMBED TOGGLE -->
+                        <div class="ed-sec">
+                            <div class="ed-header">
+                                <span class="ed-title">Embed</span>
+                                <label class="ed-toggle">
+                                    <span id="embed-toggle-lbl">Nonaktif</span>
+                                    <div class="toggle-sw">
+                                        <input
+                                            type="checkbox"
+                                            id="embed-on"
+                                            onchange="toggleEmbed()"
+                                        />
+                                        <div class="toggle-track"></div>
+                                        <div class="toggle-thumb"></div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div id="embed-fields" class="embed-disabled">
+                                <!-- Bar color -->
+                                <div style="margin-bottom: 14px">
+                                    <p class="field-label">Warna Sidebar</p>
+                                    <div class="color-row">
+                                        <input
+                                            type="color"
+                                            id="embed-color"
+                                            value="#5865f2"
+                                            oninput="syncColor(this.value)"
+                                        />
+                                        <input
+                                            type="text"
+                                            id="embed-color-hex"
+                                            value="#5865f2"
+                                            placeholder="#5865f2"
+                                            oninput="syncColorHex(this.value)"
+                                            style="max-width: 110px"
+                                        />
+                                        <div
+                                            style="
+                                                display: flex;
+                                                gap: 5px;
+                                                flex-wrap: wrap;
+                                            "
+                                        >
+                                            <div
+                                                class="cp"
+                                                onclick="pickColor('#5865f2')"
+                                                style="
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    border-radius: 4px;
+                                                    background: #5865f2;
+                                                    cursor: pointer;
+                                                    border: 1px solid
+                                                        rgba(255, 255, 255, 0.2);
+                                                "
+                                                title="Discord Blurple"
+                                            ></div>
+                                            <div
+                                                class="cp"
+                                                onclick="pickColor('#57f287')"
+                                                style="
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    border-radius: 4px;
+                                                    background: #57f287;
+                                                    cursor: pointer;
+                                                    border: 1px solid
+                                                        rgba(255, 255, 255, 0.2);
+                                                "
+                                                title="Green"
+                                            ></div>
+                                            <div
+                                                class="cp"
+                                                onclick="pickColor('#faa61a')"
+                                                style="
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    border-radius: 4px;
+                                                    background: #faa61a;
+                                                    cursor: pointer;
+                                                    border: 1px solid
+                                                        rgba(255, 255, 255, 0.2);
+                                                "
+                                                title="Yellow"
+                                            ></div>
+                                            <div
+                                                class="cp"
+                                                onclick="pickColor('#ed4245')"
+                                                style="
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    border-radius: 4px;
+                                                    background: #ed4245;
+                                                    cursor: pointer;
+                                                    border: 1px solid
+                                                        rgba(255, 255, 255, 0.2);
+                                                "
+                                                title="Red"
+                                            ></div>
+                                            <div
+                                                class="cp"
+                                                onclick="pickColor('#eb459e')"
+                                                style="
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    border-radius: 4px;
+                                                    background: #eb459e;
+                                                    cursor: pointer;
+                                                    border: 1px solid
+                                                        rgba(255, 255, 255, 0.2);
+                                                "
+                                                title="Pink"
+                                            ></div>
+                                            <div
+                                                class="cp"
+                                                onclick="pickColor('#00aff4')"
+                                                style="
+                                                    width: 20px;
+                                                    height: 20px;
+                                                    border-radius: 4px;
+                                                    background: #00aff4;
+                                                    cursor: pointer;
+                                                    border: 1px solid
+                                                        rgba(255, 255, 255, 0.2);
+                                                "
+                                                title="Cyan"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Author -->
+                                <div style="margin-bottom: 14px">
+                                    <p class="field-label">Author</p>
+                                    <div
+                                        class="row2"
+                                        style="margin-bottom: 6px"
+                                    >
+                                        <input
+                                            type="text"
+                                            id="em-author-name"
+                                            placeholder="Nama author (opsional)"
+                                            oninput="render()"
+                                        />
+                                        <input
+                                            type="url"
+                                            id="em-author-icon"
+                                            placeholder="URL ikon author"
+                                            oninput="render()"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- Title & URL -->
+                                <div style="margin-bottom: 14px">
+                                    <p class="field-label">Judul Embed</p>
+                                    <input
+                                        type="text"
+                                        id="em-title"
+                                        placeholder="Judul embed..."
+                                        oninput="render()"
+                                        style="margin-bottom: 6px"
+                                    />
+                                    <input
+                                        type="url"
+                                        id="em-title-url"
+                                        placeholder="URL (buat judul jadi link, opsional)"
+                                        oninput="render()"
+                                    />
+                                </div>
+
+                                <!-- Description -->
+                                <div style="margin-bottom: 14px">
+                                    <p class="field-label">Deskripsi</p>
+                                    <textarea
+                                        id="em-desc"
+                                        oninput="render()"
+                                        placeholder="Isi deskripsi embed..."
+                                        style="min-height: 80px"
+                                    ></textarea>
+                                    <p class="field-hint">
+                                        **bold** · *italic* · `kode`
+                                    </p>
+                                </div>
+
+                                <!-- Fields -->
+                                <div style="margin-bottom: 14px">
+                                    <p class="field-label">Fields</p>
+                                    <div
+                                        class="fields-list"
+                                        id="fields-list"
+                                    ></div>
+                                    <button
+                                        class="add-field-btn"
+                                        onclick="addField()"
+                                    >
+                                        ＋ Tambah Field
+                                    </button>
+                                </div>
+
+                                <!-- Thumbnail & Image -->
+                                <div style="margin-bottom: 14px">
+                                    <p class="field-label">Gambar</p>
+                                    <div class="row2">
+                                        <div>
+                                            <input
+                                                type="url"
+                                                id="em-thumb"
+                                                placeholder="URL Thumbnail (kanan atas)"
+                                                oninput="render()"
+                                            />
+                                            <p class="field-hint">
+                                                Thumbnail (80×80)
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <input
+                                                type="url"
+                                                id="em-image"
+                                                placeholder="URL Gambar besar"
+                                                oninput="render()"
+                                            />
+                                            <p class="field-hint">
+                                                Gambar penuh di bawah
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div>
+                                    <p class="field-label">Footer</p>
+                                    <div class="row2">
+                                        <input
+                                            type="text"
+                                            id="em-footer-text"
+                                            placeholder="Teks footer (opsional)"
+                                            oninput="render()"
+                                        />
+                                        <input
+                                            type="url"
+                                            id="em-footer-icon"
+                                            placeholder="URL ikon footer"
+                                            oninput="render()"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Webhook -->
+                        <div class="ed-sec">
+                            <div class="ed-header">
+                                <span class="ed-title">Kirim ke Discord</span>
+                            </div>
+                            <p class="field-label">Webhook URL</p>
+                            <div class="hook-row">
+                                <input
+                                    type="text"
+                                    id="wh-url"
+                                    placeholder="https://discord.com/api/webhooks/..."
+                                />
+                                <button
+                                    class="send-btn"
+                                    id="send-btn"
+                                    onclick="sendWebhook()"
+                                >
+                                    <svg
+                                        width="13"
+                                        height="13"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2.5"
+                                    >
+                                        <line x1="22" y1="2" x2="11" y2="13" />
+                                        <polygon
+                                            points="22 2 15 22 11 13 2 9 22 2"
+                                        />
+                                    </svg>
+                                    Kirim
+                                </button>
+                            </div>
+                            <p class="field-hint">
+                                Channel → Edit → Integrations → Webhooks → Copy
+                                URL
+                            </p>
+                            <div class="status" id="status-el"></div>
+                        </div>
+                    </div>
+                    <!-- /editor -->
+                </div>
+                <!-- /workspace -->
             </div>
-          </div>
+            <!-- /main -->
         </div>
-      </div>
-    </div>
+        <!-- /app -->
 
-    <!-- EDITOR -->
-    <div class="editor">
+        <script>
+            const defaultMsg = `> **Hai, terima kasih yaa sudah gabung ke server ini 💜**
 
-      <!-- Identitas -->
-      <div class="ed-sec">
-        <div class="ed-header"><span class="ed-title">Identitas Pengirim</span></div>
-        <div class="row2">
-          <div>
-            <p class="field-label">Nama Bot</p>
-            <input type="text" id="bot-name" placeholder="Bola Ubi" value="Bola Ubi" oninput="render()"/>
-          </div>
-          <div>
-            <p class="field-label">URL Avatar</p>
-            <input type="url" id="bot-avatar" placeholder="https://..." oninput="render()"/>
-          </div>
-        </div>
-      </div>
+> Di sini kalian bebas ngobrol, main, dan seru-seruan bareng!
 
-      <!-- Pesan biasa -->
-      <div class="ed-sec">
-        <div class="ed-header"><span class="ed-title">Isi Pesan</span></div>
-        <textarea id="msg-content" oninput="render();charCount()" placeholder="Ketik pesan di sini... (opsional jika pakai embed)"></textarea>
-        <div class="char-count" id="char-c">0 / 2000</div>
-        <p class="field-hint">**bold** · *italic* · `kode`</p>
-      </div>
+> Tapi walau begitu, ada beberapa peraturan yang harus kalian patuhi ^^
 
-      <!-- EMBED TOGGLE -->
-      <div class="ed-sec">
-        <div class="ed-header">
-          <span class="ed-title">Embed</span>
-          <label class="ed-toggle">
-            <span id="embed-toggle-lbl">Nonaktif</span>
-            <div class="toggle-sw">
-              <input type="checkbox" id="embed-on" onchange="toggleEmbed()"/>
-              <div class="toggle-track"></div>
-              <div class="toggle-thumb"></div>
-            </div>
-          </label>
-        </div>
+> **〔 📜 PERATURAN SERVER 〕**
 
-        <div id="embed-fields" class="embed-disabled">
+> **1.** **Saling menghargai satu sama lain** yaa, jangan toxic atau cari ribut. Karena server ini pengen jadi tempat yang nyaman dan ramah buat semua orang.
 
-          <!-- Bar color -->
-          <div style="margin-bottom:14px">
-            <p class="field-label">Warna Sidebar</p>
-            <div class="color-row">
-              <input type="color" id="embed-color" value="#5865f2" oninput="syncColor(this.value)"/>
-              <input type="text" id="embed-color-hex" value="#5865f2" placeholder="#5865f2" oninput="syncColorHex(this.value)" style="max-width:110px"/>
-              <div style="display:flex;gap:5px;flex-wrap:wrap">
-                <div class="cp" onclick="pickColor('#5865f2')" style="width:20px;height:20px;border-radius:4px;background:#5865f2;cursor:pointer;border:1px solid rgba(255,255,255,.2)" title="Discord Blurple"></div>
-                <div class="cp" onclick="pickColor('#57f287')" style="width:20px;height:20px;border-radius:4px;background:#57f287;cursor:pointer;border:1px solid rgba(255,255,255,.2)" title="Green"></div>
-                <div class="cp" onclick="pickColor('#faa61a')" style="width:20px;height:20px;border-radius:4px;background:#faa61a;cursor:pointer;border:1px solid rgba(255,255,255,.2)" title="Yellow"></div>
-                <div class="cp" onclick="pickColor('#ed4245')" style="width:20px;height:20px;border-radius:4px;background:#ed4245;cursor:pointer;border:1px solid rgba(255,255,255,.2)" title="Red"></div>
-                <div class="cp" onclick="pickColor('#eb459e')" style="width:20px;height:20px;border-radius:4px;background:#eb459e;cursor:pointer;border:1px solid rgba(255,255,255,.2)" title="Pink"></div>
-                <div class="cp" onclick="pickColor('#00aff4')" style="width:20px;height:20px;border-radius:4px;background:#00aff4;cursor:pointer;border:1px solid rgba(255,255,255,.2)" title="Cyan"></div>
-              </div>
-            </div>
-          </div>
+> **2.** **Jangan spam chat, emoji, sticker, atau mention** orang terus-terusan. Chill ajaa ngga sih?
 
-          <!-- Author -->
-          <div style="margin-bottom:14px">
-            <p class="field-label">Author</p>
-            <div class="row2" style="margin-bottom:6px">
-              <input type="text" id="em-author-name" placeholder="Nama author (opsional)" oninput="render()"/>
-              <input type="url" id="em-author-icon" placeholder="URL ikon author" oninput="render()"/>
-            </div>
-          </div>
+> **3.** **Kirim pesan di chanel yang sesuai** yaa, hehe. Biar ngga berantakan.
 
-          <!-- Title & URL -->
-          <div style="margin-bottom:14px">
-            <p class="field-label">Judul Embed</p>
-            <input type="text" id="em-title" placeholder="Judul embed..." oninput="render()" style="margin-bottom:6px"/>
-            <input type="url" id="em-title-url" placeholder="URL (buat judul jadi link, opsional)" oninput="render()"/>
-          </div>
+> **4.** **Dilarang kirim konten NSFW, gore, atau hal yang terlalu vulgar.**
 
-          <!-- Description -->
-          <div style="margin-bottom:14px">
-            <p class="field-label">Deskripsi</p>
-            <textarea id="em-desc" oninput="render()" placeholder="Isi deskripsi embed..." style="min-height:80px"></textarea>
-            <p class="field-hint">**bold** · *italic* · `kode`</p>
-          </div>
+> **5.** **Bercanda boleh**, tapi jangan sampai bikin orang lain ngga nyaman (seperti rasisme dan diskriminasi). Okay?
 
-          <!-- Fields -->
-          <div style="margin-bottom:14px">
-            <p class="field-label">Fields</p>
-            <div class="fields-list" id="fields-list"></div>
-            <button class="add-field-btn" onclick="addField()">＋ Tambah Field</button>
-          </div>
+> **6.** **Jangan sebar data pribadi siapa pun** yaa, termasuk nomor, foto, dan akun orang lain.
 
-          <!-- Thumbnail & Image -->
-          <div style="margin-bottom:14px">
-            <p class="field-label">Gambar</p>
-            <div class="row2">
-              <div>
-                <input type="url" id="em-thumb" placeholder="URL Thumbnail (kanan atas)" oninput="render()"/>
-                <p class="field-hint">Thumbnail (80×80)</p>
-              </div>
-              <div>
-                <input type="url" id="em-image" placeholder="URL Gambar besar" oninput="render()"/>
-                <p class="field-hint">Gambar penuh di bawah</p>
-              </div>
-            </div>
-          </div>
+> **7.** **Kalau ada masalah**, jangan langsung ribut di chat yaa. Kalian boleh langsung kabarin Ubi.
 
-          <!-- Footer -->
-          <div>
-            <p class="field-label">Footer</p>
-            <div class="row2">
-              <input type="text" id="em-footer-text" placeholder="Teks footer (opsional)" oninput="render()"/>
-              <input type="url" id="em-footer-icon" placeholder="URL ikon footer" oninput="render()"/>
-            </div>
-          </div>
+> Hmm kayanya segitu aja, yang penting di sini kita seru-seruan bareng, nambah temen, dan sama-sama bikin suasana yang nyaman 🤗
 
-        </div>
-      </div>
+> Semoga betah ya, dan selamat bergabung di dunia perumbi-umbian 😈`;
 
-      <!-- Webhook -->
-      <div class="ed-sec">
-        <div class="ed-header"><span class="ed-title">Kirim ke Discord</span></div>
-        <p class="field-label">Webhook URL</p>
-        <div class="hook-row">
-          <input type="text" id="wh-url" placeholder="https://discord.com/api/webhooks/..."/>
-          <button class="send-btn" id="send-btn" onclick="sendWebhook()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            Kirim
-          </button>
-        </div>
-        <p class="field-hint">Channel → Edit → Integrations → Webhooks → Copy URL</p>
-        <div class="status" id="status-el"></div>
-      </div>
+            let embedActive = false;
+            let fields = [];
 
-    </div><!-- /editor -->
-  </div><!-- /workspace -->
-</div><!-- /main -->
-</div><!-- /app -->
+            function md(t) {
+                return t
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+                    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+                    .replace(/`(.+?)`/g, "<code>$1</code>")
+                    .replace(/\n/g, "<br>");
+            }
 
-<script>
-const defaultMsg = `**Hai, terima kasih yaa sudah gabung ke server ini** 
-Di sini kalian bebas ngobrol, main, dan seru-seruan bareng!
-Tapi walau begitu, ada beberapa peraturan yang harus kalian patuhi ^^
+            function toggleEmbed() {
+                embedActive = document.getElementById("embed-on").checked;
+                document.getElementById("embed-toggle-lbl").textContent =
+                    embedActive ? "Aktif" : "Nonaktif";
+                document
+                    .getElementById("embed-fields")
+                    .classList.toggle("embed-disabled", !embedActive);
+                render();
+            }
 
-**〔 📜 PERATURAN SERVER 〕**
+            function syncColor(v) {
+                document.getElementById("embed-color-hex").value = v;
+                render();
+            }
+            function syncColorHex(v) {
+                if (/^#[0-9a-f]{6}$/i.test(v))
+                    document.getElementById("embed-color").value = v;
+                render();
+            }
+            function pickColor(c) {
+                document.getElementById("embed-color").value = c;
+                document.getElementById("embed-color-hex").value = c;
+                render();
+            }
 
-**1.** Saling menghargai satu sama lain yaa, jangan toxic atau cari ribut.
-**2.** Jangan spam chat, emoji, sticker, atau mention orang terus-terusan.
-**3.** Kirim pesan di chanel yang sesuai yaa, hehe.
-**4.** Dilarang kirim konten NSFW, gore, atau hal yang terlalu vulgar.
-**5.** Bercanda boleh, tapi jangan sampai bikin orang lain ngga nyaman.
-**6.** Jangan sebar data pribadi siapa pun yaa.
-**7.** Kalau ada masalah, kabarin Ubi langsung.
-
-Semoga betah ya, selamat bergabung di dunia perumbi-umbian 🍠`;
-
-let embedActive = false;
-let fields = [];
-
-function md(t){
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')
-    .replace(/`(.+?)`/g,'<code>$1</code>')
-    .replace(/\n/g,'<br>');
-}
-
-function toggleEmbed(){
-  embedActive = document.getElementById('embed-on').checked;
-  document.getElementById('embed-toggle-lbl').textContent = embedActive ? 'Aktif' : 'Nonaktif';
-  document.getElementById('embed-fields').classList.toggle('embed-disabled', !embedActive);
-  render();
-}
-
-function syncColor(v){
-  document.getElementById('embed-color-hex').value = v;
-  render();
-}
-function syncColorHex(v){
-  if(/^#[0-9a-f]{6}$/i.test(v)) document.getElementById('embed-color').value = v;
-  render();
-}
-function pickColor(c){
-  document.getElementById('embed-color').value = c;
-  document.getElementById('embed-color-hex').value = c;
-  render();
-}
-
-function addField(){
-  const id = Date.now();
-  fields.push({id, name:'', value:'', inline:false});
-  renderFieldList();
-  render();
-}
-function removeField(id){
-  fields = fields.filter(f=>f.id!==id);
-  renderFieldList();
-  render();
-}
-function renderFieldList(){
-  const list = document.getElementById('fields-list');
-  list.innerHTML = fields.map(f=>`
+            function addField() {
+                const id = Date.now();
+                fields.push({ id, name: "", value: "", inline: false });
+                renderFieldList();
+                render();
+            }
+            function removeField(id) {
+                fields = fields.filter((f) => f.id !== id);
+                renderFieldList();
+                render();
+            }
+            function renderFieldList() {
+                const list = document.getElementById("fields-list");
+                list.innerHTML = fields
+                    .map(
+                        (f) => `
     <div class="field-card" id="fc-${f.id}">
       <button class="field-card-del" onclick="removeField(${f.id})" title="Hapus field">✕</button>
       <div class="field-card-row">
@@ -478,218 +1428,315 @@ function renderFieldList(){
         <div><p class="field-label">Nilai</p><input type="text" placeholder="Nilai field" value="${escHtml(f.value)}" oninput="updateField(${f.id},'value',this.value)"/></div>
       </div>
       <div class="field-inline">
-        <input type="checkbox" id="fi-${f.id}" ${f.inline?'checked':''} onchange="updateField(${f.id},'inline',this.checked)"/>
+        <input type="checkbox" id="fi-${f.id}" ${f.inline ? "checked" : ""} onchange="updateField(${f.id},'inline',this.checked)"/>
         <label for="fi-${f.id}">Inline (tampil berdampingan)</label>
       </div>
-    </div>`).join('');
-}
-function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function updateField(id,key,val){
-  const f = fields.find(x=>x.id===id);
-  if(f) f[key]=val;
-  render();
-}
+    </div>`,
+                    )
+                    .join("");
+            }
+            function escHtml(s) {
+                return String(s)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;");
+            }
+            function updateField(id, key, val) {
+                const f = fields.find((x) => x.id === id);
+                if (f) f[key] = val;
+                render();
+            }
 
-function show(id,v){document.getElementById(id).style.display=v?'':'none'}
-function t(id){return (document.getElementById(id)||{}).value||''}
+            function show(id, v) {
+                document.getElementById(id).style.display = v ? "" : "none";
+            }
+            function t(id) {
+                return (document.getElementById(id) || {}).value || "";
+            }
 
-function render(){
-  // Identity
-  const name = t('bot-name')||'Bot';
-  const avatarUrl = t('bot-avatar');
-  document.getElementById('pv-name').textContent = name;
-  const avEl = document.getElementById('av-el');
-  if(avatarUrl){
-    avEl.innerHTML = `<img src="${escHtml(avatarUrl)}" onerror="this.parentElement.innerHTML='📢'" alt=""/>`;
-  } else {
-    avEl.innerHTML = '📢';
-  }
+            function render() {
+                // Identity
+                const name = t("bot-name") || "Bot";
+                const avatarUrl = t("bot-avatar");
+                document.getElementById("pv-name").textContent = name;
+                const avEl = document.getElementById("av-el");
+                if (avatarUrl) {
+                    avEl.innerHTML = `<img src="${escHtml(avatarUrl)}" onerror="this.parentElement.innerHTML='📢'" alt=""/>`;
+                } else {
+                    avEl.innerHTML = "📢";
+                }
 
-  // Timestamp
-  const now = new Date();
-  document.getElementById('pv-time').textContent = `Hari ini pukul ${now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`;
-  document.getElementById('preview-date').textContent = now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+                // Timestamp
+                const now = new Date();
+                document.getElementById("pv-time").textContent =
+                    `Hari ini pukul ${now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`;
+                document.getElementById("preview-date").textContent =
+                    now.toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                    });
 
-  // Content
-  const content = t('msg-content');
-  document.getElementById('pv-content').innerHTML = content ? md(content) : '';
+                // Content
+                const content = t("msg-content");
+                document.getElementById("pv-content").innerHTML = content
+                    ? md(content)
+                    : "";
 
-  // Embed
-  const emWrap = document.getElementById('pv-embed');
-  if(!embedActive){ emWrap.style.display='none'; return; }
+                // Embed
+                const emWrap = document.getElementById("pv-embed");
+                if (!embedActive) {
+                    emWrap.style.display = "none";
+                    return;
+                }
 
-  const emColor = t('embed-color-hex')||'#5865f2';
-  const emAuthorName = t('em-author-name');
-  const emAuthorIcon = t('em-author-icon');
-  const emTitle = t('em-title');
-  const emTitleUrl = t('em-title-url');
-  const emDesc = t('em-desc');
-  const emThumb = t('em-thumb');
-  const emImage = t('em-image');
-  const emFooterText = t('em-footer-text');
-  const emFooterIcon = t('em-footer-icon');
+                const emColor = t("embed-color-hex") || "#5865f2";
+                const emAuthorName = t("em-author-name");
+                const emAuthorIcon = t("em-author-icon");
+                const emTitle = t("em-title");
+                const emTitleUrl = t("em-title-url");
+                const emDesc = t("em-desc");
+                const emThumb = t("em-thumb");
+                const emImage = t("em-image");
+                const emFooterText = t("em-footer-text");
+                const emFooterIcon = t("em-footer-icon");
 
-  const hasContent = emAuthorName||emTitle||emDesc||emFooterText||emThumb||emImage||fields.some(f=>f.name||f.value);
-  show('pv-embed', hasContent);
+                const hasContent =
+                    emAuthorName ||
+                    emTitle ||
+                    emDesc ||
+                    emFooterText ||
+                    emThumb ||
+                    emImage ||
+                    fields.some((f) => f.name || f.value);
+                show("pv-embed", hasContent);
 
-  document.getElementById('pv-bar').style.background = /^#[0-9a-f]{6}$/i.test(emColor) ? emColor : '#5865f2';
+                document.getElementById("pv-bar").style.background =
+                    /^#[0-9a-f]{6}$/i.test(emColor) ? emColor : "#5865f2";
 
-  // Author
-  const showAuthor = !!emAuthorName;
-  show('pv-author', showAuthor);
-  if(showAuthor){
-    document.getElementById('pv-author-name').textContent = emAuthorName;
-    show('pv-author-icon', !!emAuthorIcon);
-    if(emAuthorIcon) document.getElementById('pv-author-icon-img').src = emAuthorIcon;
-  }
+                // Author
+                const showAuthor = !!emAuthorName;
+                show("pv-author", showAuthor);
+                if (showAuthor) {
+                    document.getElementById("pv-author-name").textContent =
+                        emAuthorName;
+                    show("pv-author-icon", !!emAuthorIcon);
+                    if (emAuthorIcon)
+                        document.getElementById("pv-author-icon-img").src =
+                            emAuthorIcon;
+                }
 
-  // Thumb
-  show('pv-thumb', !!emThumb);
-  if(emThumb) document.getElementById('pv-thumb-img').src = emThumb;
+                // Thumb
+                show("pv-thumb", !!emThumb);
+                if (emThumb)
+                    document.getElementById("pv-thumb-img").src = emThumb;
 
-  // Title
-  show('pv-title', !!emTitle);
-  if(emTitle){
-    const titleEl = document.getElementById('pv-title');
-    titleEl.innerHTML = emTitleUrl ? `<a href="${escHtml(emTitleUrl)}" target="_blank">${escHtml(emTitle)}</a>` : escHtml(emTitle);
-  }
+                // Title
+                show("pv-title", !!emTitle);
+                if (emTitle) {
+                    const titleEl = document.getElementById("pv-title");
+                    titleEl.innerHTML = emTitleUrl
+                        ? `<a href="${escHtml(emTitleUrl)}" target="_blank">${escHtml(emTitle)}</a>`
+                        : escHtml(emTitle);
+                }
 
-  // Desc
-  show('pv-desc', !!emDesc);
-  if(emDesc) document.getElementById('pv-desc').innerHTML = md(emDesc);
+                // Desc
+                show("pv-desc", !!emDesc);
+                if (emDesc)
+                    document.getElementById("pv-desc").innerHTML = md(emDesc);
 
-  // Fields
-  const hasFields = fields.some(f=>f.name||f.value);
-  show('pv-fields', hasFields);
-  if(hasFields){
-    // Count inline runs
-    const pvf = document.getElementById('pv-fields');
-    // Build grid: detect consecutive inline groups
-    let rows = [];
-    let cur = [];
-    for(const f of fields){
-      if(f.inline){ cur.push(f); }
-      else{ if(cur.length) rows.push({inline:true,items:cur}); cur=[]; rows.push({inline:false,items:[f]}); }
-    }
-    if(cur.length) rows.push({inline:true,items:cur});
-    pvf.innerHTML = rows.map(r=>{
-      if(r.inline){
-        return `<div style="display:grid;grid-template-columns:repeat(${Math.min(r.items.length,3)},1fr);gap:8px">` +
-          r.items.map(f=>`<div class="embed-field"><div class="embed-field-name">${escHtml(f.name)}</div><div class="embed-field-value">${md(f.value)}</div></div>`).join('') + '</div>';
-      } else {
-        const f=r.items[0];
-        return `<div class="embed-field"><div class="embed-field-name">${escHtml(f.name)}</div><div class="embed-field-value">${md(f.value)}</div></div>`;
-      }
-    }).join('');
-  }
+                // Fields
+                const hasFields = fields.some((f) => f.name || f.value);
+                show("pv-fields", hasFields);
+                if (hasFields) {
+                    // Count inline runs
+                    const pvf = document.getElementById("pv-fields");
+                    // Build grid: detect consecutive inline groups
+                    let rows = [];
+                    let cur = [];
+                    for (const f of fields) {
+                        if (f.inline) {
+                            cur.push(f);
+                        } else {
+                            if (cur.length)
+                                rows.push({ inline: true, items: cur });
+                            cur = [];
+                            rows.push({ inline: false, items: [f] });
+                        }
+                    }
+                    if (cur.length) rows.push({ inline: true, items: cur });
+                    pvf.innerHTML = rows
+                        .map((r) => {
+                            if (r.inline) {
+                                return (
+                                    `<div style="display:grid;grid-template-columns:repeat(${Math.min(r.items.length, 3)},1fr);gap:8px">` +
+                                    r.items
+                                        .map(
+                                            (f) =>
+                                                `<div class="embed-field"><div class="embed-field-name">${escHtml(f.name)}</div><div class="embed-field-value">${md(f.value)}</div></div>`,
+                                        )
+                                        .join("") +
+                                    "</div>"
+                                );
+                            } else {
+                                const f = r.items[0];
+                                return `<div class="embed-field"><div class="embed-field-name">${escHtml(f.name)}</div><div class="embed-field-value">${md(f.value)}</div></div>`;
+                            }
+                        })
+                        .join("");
+                }
 
-  // Image
-  show('pv-image', !!emImage);
-  if(emImage) document.getElementById('pv-image-img').src = emImage;
+                // Image
+                show("pv-image", !!emImage);
+                if (emImage)
+                    document.getElementById("pv-image-img").src = emImage;
 
-  // Footer
-  show('pv-footer', !!emFooterText);
-  if(emFooterText){
-    document.getElementById('pv-footer-text').textContent = emFooterText;
-    show('pv-footer-icon', !!emFooterIcon);
-    if(emFooterIcon) document.getElementById('pv-footer-icon-img').src = emFooterIcon;
-  }
-}
+                // Footer
+                show("pv-footer", !!emFooterText);
+                if (emFooterText) {
+                    document.getElementById("pv-footer-text").textContent =
+                        emFooterText;
+                    show("pv-footer-icon", !!emFooterIcon);
+                    if (emFooterIcon)
+                        document.getElementById("pv-footer-icon-img").src =
+                            emFooterIcon;
+                }
+            }
 
-function charCount(){
-  const len = t('msg-content').length;
-  const el = document.getElementById('char-c');
-  el.textContent = `${len} / 2000`;
-  el.className = 'char-count' + (len>2000?' over':len>1800?' warn':'');
-}
+            function charCount() {
+                const len = t("msg-content").length;
+                const el = document.getElementById("char-c");
+                el.textContent = `${len} / 2000`;
+                el.className =
+                    "char-count" +
+                    (len > 2000 ? " over" : len > 1800 ? " warn" : "");
+            }
 
-function setStatus(cls,msg){
-  const el = document.getElementById('status-el');
-  el.textContent = msg; el.className = 'status '+cls;
-}
+            function setStatus(cls, msg) {
+                const el = document.getElementById("status-el");
+                el.textContent = msg;
+                el.className = "status " + cls;
+            }
 
-async function sendWebhook(){
-  const whUrl = t('wh-url');
-  const content = t('msg-content');
-  const username = t('bot-name')||'Bot';
-  const avatarUrl = t('bot-avatar');
-  const btn = document.getElementById('send-btn');
+            async function sendWebhook() {
+                const whUrl = t("wh-url");
+                const content = t("msg-content");
+                const username = t("bot-name") || "Bot";
+                const avatarUrl = t("bot-avatar");
+                const btn = document.getElementById("send-btn");
 
-  if(!whUrl){ setStatus('err','❌ Masukkan webhook URL dulu ya!'); return; }
-  if(!whUrl.startsWith('https://discord.com/api/webhooks/') && !whUrl.startsWith('https://ptb.discord.com/api/webhooks/') && !whUrl.startsWith('https://canary.discord.com/api/webhooks/')){
-    setStatus('err','❌ URL tidak valid.'); return;
-  }
-  if(!content && !embedActive){ setStatus('err','❌ Pesan masih kosong!'); return; }
-  if(content.length>2000){ setStatus('err','❌ Pesan terlalu panjang (maks 2000 karakter).'); return; }
+                if (!whUrl) {
+                    setStatus("err", "❌ Masukkan webhook URL dulu ya!");
+                    return;
+                }
+                if (
+                    !whUrl.startsWith("https://discord.com/api/webhooks/") &&
+                    !whUrl.startsWith(
+                        "https://ptb.discord.com/api/webhooks/",
+                    ) &&
+                    !whUrl.startsWith(
+                        "https://canary.discord.com/api/webhooks/",
+                    )
+                ) {
+                    setStatus("err", "❌ URL tidak valid.");
+                    return;
+                }
+                if (!content && !embedActive) {
+                    setStatus("err", "❌ Pesan masih kosong!");
+                    return;
+                }
+                if (content.length > 2000) {
+                    setStatus(
+                        "err",
+                        "❌ Pesan terlalu panjang (maks 2000 karakter).",
+                    );
+                    return;
+                }
 
-  btn.disabled = true;
-  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Mengirim...';
-  setStatus('loading','⏳ Menghubungkan ke Discord...');
+                btn.disabled = true;
+                btn.innerHTML =
+                    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Mengirim...';
+                setStatus("loading", "⏳ Menghubungkan ke Discord...");
 
-  const payload = { username };
-  if(avatarUrl) payload.avatar_url = avatarUrl;
-  if(content) payload.content = content;
+                const payload = { username };
+                if (avatarUrl) payload.avatar_url = avatarUrl;
+                if (content) payload.content = content;
 
-  if(embedActive){
-    const emColor = t('embed-color-hex')||'#5865f2';
-    const emTitle = t('em-title');
-    const emDesc = t('em-desc');
-    const emFooterText = t('em-footer-text');
-    const emThumb = t('em-thumb');
-    const emImage = t('em-image');
-    const emAuthorName = t('em-author-name');
-    const emAuthorIcon = t('em-author-icon');
-    const emTitleUrl = t('em-title-url');
-    const emFooterIcon = t('em-footer-icon');
+                if (embedActive) {
+                    const emColor = t("embed-color-hex") || "#5865f2";
+                    const emTitle = t("em-title");
+                    const emDesc = t("em-desc");
+                    const emFooterText = t("em-footer-text");
+                    const emThumb = t("em-thumb");
+                    const emImage = t("em-image");
+                    const emAuthorName = t("em-author-name");
+                    const emAuthorIcon = t("em-author-icon");
+                    const emTitleUrl = t("em-title-url");
+                    const emFooterIcon = t("em-footer-icon");
 
-    const colorInt = parseInt(emColor.replace('#',''),16)||5793266;
-    const embed = { color: colorInt };
-    if(emTitle) embed.title = emTitle;
-    if(emTitleUrl) embed.url = emTitleUrl;
-    if(emDesc) embed.description = emDesc;
-    if(emAuthorName){
-      embed.author = { name: emAuthorName };
-      if(emAuthorIcon) embed.author.icon_url = emAuthorIcon;
-    }
-    if(emThumb) embed.thumbnail = { url: emThumb };
-    if(emImage) embed.image = { url: emImage };
-    if(emFooterText){
-      embed.footer = { text: emFooterText };
-      if(emFooterIcon) embed.footer.icon_url = emFooterIcon;
-    }
-    if(fields.length){
-      embed.fields = fields.filter(f=>f.name||f.value).map(f=>({
-        name: f.name||'\u200b',
-        value: f.value||'\u200b',
-        inline: f.inline
-      }));
-    }
-    payload.embeds = [embed];
-  }
+                    const colorInt =
+                        parseInt(emColor.replace("#", ""), 16) || 5793266;
+                    const embed = { color: colorInt };
+                    if (emTitle) embed.title = emTitle;
+                    if (emTitleUrl) embed.url = emTitleUrl;
+                    if (emDesc) embed.description = emDesc;
+                    if (emAuthorName) {
+                        embed.author = { name: emAuthorName };
+                        if (emAuthorIcon) embed.author.icon_url = emAuthorIcon;
+                    }
+                    if (emThumb) embed.thumbnail = { url: emThumb };
+                    if (emImage) embed.image = { url: emImage };
+                    if (emFooterText) {
+                        embed.footer = { text: emFooterText };
+                        if (emFooterIcon) embed.footer.icon_url = emFooterIcon;
+                    }
+                    if (fields.length) {
+                        embed.fields = fields
+                            .filter((f) => f.name || f.value)
+                            .map((f) => ({
+                                name: f.name || "\u200b",
+                                value: f.value || "\u200b",
+                                inline: f.inline,
+                            }));
+                    }
+                    payload.embeds = [embed];
+                }
 
-  try {
-    const res = await fetch(whUrl, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    if(res.ok||res.status===204){
-      setStatus('ok','✅ Pesan berhasil dikirim ke Discord!');
-    } else {
-      const err = await res.json().catch(()=>({}));
-      setStatus('err',`❌ Gagal: ${err.message||'HTTP '+res.status}`);
-    }
-  } catch(e){
-    setStatus('err','❌ Gagal terhubung. Cek koneksi internetmu ya.');
-  }
+                try {
+                    const res = await fetch(whUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    });
+                    if (res.ok || res.status === 204) {
+                        setStatus(
+                            "ok",
+                            "✅ Pesan berhasil dikirim ke Discord!",
+                        );
+                    } else {
+                        const err = await res.json().catch(() => ({}));
+                        setStatus(
+                            "err",
+                            `❌ Gagal: ${err.message || "HTTP " + res.status}`,
+                        );
+                    }
+                } catch (e) {
+                    setStatus(
+                        "err",
+                        "❌ Gagal terhubung. Cek koneksi internetmu ya.",
+                    );
+                }
 
-  btn.disabled = false;
-  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Kirim';
-}
+                btn.disabled = false;
+                btn.innerHTML =
+                    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Kirim';
+            }
 
-// Init
-document.getElementById('msg-content').value = defaultMsg;
-render(); charCount();
-</script>
-</body>
+            // Init
+            document.getElementById("msg-content").value = defaultMsg;
+            render();
+            charCount();
+        </script>
+    </body>
 </html>
