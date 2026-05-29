@@ -1,1742 +1,548 @@
 <!doctype html>
 <html lang="id">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-        <title>Discord Webhook — Bola Ubi</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap"
-            rel="stylesheet"
-        />
-        <style>
-            *,
-            *::before,
-            *::after {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-            }
-            :root {
-                --bg: #0d0d0f;
-                --surface: #17181c;
-                --surface2: #1f2026;
-                --surface3: #26272e;
-                --border: rgba(255, 255, 255, 0.07);
-                --border2: rgba(255, 255, 255, 0.12);
-                --text: #e3e5e8;
-                --muted: #72767d;
-                --accent: #5865f2;
-                --accent-hover: #4752c4;
-                --green: #3ba55c;
-                --red: #ed4245;
-                --yellow: #faa61a;
-                --radius: 10px;
-                --radius-sm: 6px;
-            }
-            html,
-            body {
-                height: 100%;
-                font-family: "DM Sans", sans-serif;
-                background: var(--bg);
-                color: var(--text);
-                font-size: 14px;
-            }
-
-            /* ── LAYOUT ── */
-            .app {
-                display: flex;
-                height: 100vh;
-                overflow: hidden;
-            }
-            .sidebar {
-                width: 240px;
-                background: var(--surface);
-                border-right: 1px solid var(--border);
-                display: flex;
-                flex-direction: column;
-                flex-shrink: 0;
-            }
-            .main {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                min-width: 0;
-                overflow: hidden;
-            }
-            .workspace {
-                flex: 1;
-                display: grid;
-                grid-template-columns: 1fr 380px;
-                overflow: hidden;
-            }
-
-            /* ── SIDEBAR ── */
-            .sb-brand {
-                padding: 18px 16px;
-                border-bottom: 1px solid var(--border);
-            }
-            .sb-logo {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            .sb-icon {
-                width: 36px;
-                height: 36px;
-                border-radius: 10px;
-                background: var(--accent);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 18px;
-                flex-shrink: 0;
-            }
-            .sb-title {
-                font-weight: 700;
-                font-size: 15px;
-                color: #fff;
-                line-height: 1.2;
-            }
-            .sb-sub {
-                font-size: 11px;
-                color: var(--muted);
-                margin-top: 1px;
-            }
-            .sb-section {
-                padding: 12px 8px 4px;
-            }
-            .sb-label {
-                font-size: 10px;
-                font-weight: 700;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                color: var(--muted);
-                padding: 0 8px;
-                margin-bottom: 4px;
-            }
-            .sb-ch {
-                display: flex;
-                align-items: center;
-                gap: 7px;
-                padding: 5px 8px;
-                border-radius: var(--radius-sm);
-                font-size: 13px;
-                font-weight: 600;
-                color: var(--muted);
-                cursor: pointer;
-                transition: all 0.13s;
-            }
-            .sb-ch:hover {
-                background: rgba(255, 255, 255, 0.04);
-                color: var(--text);
-            }
-            .sb-ch.active {
-                background: rgba(88, 101, 242, 0.2);
-                color: #fff;
-            }
-            .sb-ch-icon {
-                width: 15px;
-                height: 15px;
-                opacity: 0.7;
-            }
-            .sb-foot {
-                margin-top: auto;
-                padding: 12px 16px;
-                border-top: 1px solid var(--border);
-                font-size: 11px;
-                color: var(--muted);
-                line-height: 1.6;
-            }
-
-            /* ── TOPBAR ── */
-            .topbar {
-                height: 48px;
-                background: var(--surface);
-                border-bottom: 1px solid var(--border);
-                display: flex;
-                align-items: center;
-                padding: 0 18px;
-                gap: 8px;
-                flex-shrink: 0;
-            }
-            .tb-icon {
-                color: var(--muted);
-            }
-            .tb-name {
-                font-size: 14px;
-                font-weight: 700;
-                color: #fff;
-            }
-            .tb-sep {
-                color: var(--muted);
-                font-size: 13px;
-            }
-            .tb-desc {
-                font-size: 13px;
-                color: var(--muted);
-            }
-            .tb-badge {
-                margin-left: auto;
-                padding: 3px 10px;
-                border-radius: 20px;
-                font-size: 10px;
-                font-weight: 700;
-                letter-spacing: 0.06em;
-                background: rgba(88, 101, 242, 0.15);
-                border: 1px solid rgba(88, 101, 242, 0.3);
-                color: var(--accent);
-            }
-
-            /* ── PREVIEW ── */
-            .preview {
-                background: #313338;
-                overflow-y: auto;
-                padding: 20px 0;
-            }
-            .pane-label {
-                font-size: 10px;
-                font-weight: 700;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                color: var(--muted);
-                padding: 0 18px 10px;
-            }
-            .day-div {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 0 18px 14px;
-            }
-            .day-line {
-                flex: 1;
-                height: 1px;
-                background: rgba(255, 255, 255, 0.09);
-            }
-            .day-text {
-                font-size: 12px;
-                font-weight: 600;
-                color: var(--muted);
-                white-space: nowrap;
-            }
-            .msg-wrap {
-                display: flex;
-                gap: 12px;
-                padding: 2px 18px 16px;
-                align-items: flex-start;
-            }
-            .av {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #5865f2, #57f287);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 18px;
-                flex-shrink: 0;
-                overflow: hidden;
-            }
-            .av img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-            .msg-body {
-                flex: 1;
-                min-width: 0;
-            }
-            .msg-meta {
-                display: flex;
-                align-items: center;
-                gap: 7px;
-                margin-bottom: 4px;
-                flex-wrap: wrap;
-            }
-            .msg-botname {
-                font-size: 15px;
-                font-weight: 700;
-                color: #fff;
-            }
-            .msg-badge {
-                background: #5865f2;
-                color: #fff;
-                font-size: 10px;
-                font-weight: 700;
-                padding: 1px 5px;
-                border-radius: 3px;
-            }
-            .msg-ts {
-                font-size: 11px;
-                color: var(--muted);
-            }
-            .msg-text {
-                font-size: 15px;
-                line-height: 1.65;
-                color: #dcddde;
-                white-space: pre-wrap;
-                word-break: break-word;
-            }
-            .msg-text strong {
-                color: #fff;
-                font-weight: 700;
-            }
-            .msg-text em {
-                font-style: italic;
-            }
-            .msg-text code {
-                background: #1e1f22;
-                border-radius: 3px;
-                padding: 1px 5px;
-                font-family: "DM Mono", monospace;
-                font-size: 13px;
-            }
-
-            /* EMBED PREVIEW */
-            .embed-preview {
-                margin-top: 8px;
-                display: flex;
-                border-radius: 4px;
-                overflow: hidden;
-                max-width: 520px;
-            }
-            .embed-bar {
-                width: 4px;
-                flex-shrink: 0;
-                border-radius: 4px 0 0 4px;
-            }
-            .embed-content {
-                background: #2b2d31;
-                flex: 1;
-                padding: 10px 14px 12px;
-                min-width: 0;
-            }
-            .embed-author {
-                display: flex;
-                align-items: center;
-                gap: 7px;
-                margin-bottom: 5px;
-            }
-            .embed-author-icon {
-                width: 22px;
-                height: 22px;
-                border-radius: 50%;
-                overflow: hidden;
-                flex-shrink: 0;
-            }
-            .embed-author-icon img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-            .embed-author-name {
-                font-size: 13px;
-                font-weight: 600;
-                color: #dbdee1;
-            }
-            .embed-title {
-                font-size: 15px;
-                font-weight: 700;
-                color: #00aff4;
-                margin-bottom: 5px;
-                word-break: break-word;
-            }
-            .embed-title a {
-                color: #00aff4;
-                text-decoration: none;
-            }
-            .embed-title a:hover {
-                text-decoration: underline;
-            }
-            .embed-desc {
-                font-size: 14px;
-                line-height: 1.6;
-                color: #dcddde;
-                white-space: pre-wrap;
-                word-break: break-word;
-                margin-bottom: 8px;
-            }
-            .embed-desc strong {
-                color: #fff;
-                font-weight: 700;
-            }
-            .embed-desc em {
-                font-style: italic;
-            }
-            .embed-desc code {
-                background: #1e1f22;
-                border-radius: 3px;
-                padding: 1px 4px;
-                font-family: "DM Mono", monospace;
-                font-size: 12px;
-            }
-            .embed-fields {
-                display: grid;
-                gap: 6px;
-                margin-bottom: 8px;
-            }
-            .embed-field {
-                min-width: 0;
-            }
-            .embed-field-name {
-                font-size: 13px;
-                font-weight: 700;
-                color: #dbdee1;
-                margin-bottom: 2px;
-            }
-            .embed-field-value {
-                font-size: 14px;
-                color: #dcddde;
-                white-space: pre-wrap;
-                word-break: break-word;
-            }
-            .embed-image {
-                margin-top: 10px;
-                border-radius: 4px;
-                overflow: hidden;
-                max-width: 100%;
-            }
-            .embed-image img {
-                width: 100%;
-                display: block;
-                border-radius: 4px;
-            }
-            .embed-thumb {
-                float: right;
-                margin-left: 14px;
-                width: 80px;
-                height: 80px;
-                border-radius: 4px;
-                overflow: hidden;
-                flex-shrink: 0;
-            }
-            .embed-thumb img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 4px;
-            }
-            .embed-footer {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                margin-top: 10px;
-                padding-top: 8px;
-                border-top: 1px solid rgba(255, 255, 255, 0.07);
-            }
-            .embed-footer-icon {
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                overflow: hidden;
-                flex-shrink: 0;
-            }
-            .embed-footer-icon img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-            .embed-footer-text {
-                font-size: 12px;
-                color: var(--muted);
-            }
-
-            /* ── EDITOR ── */
-            .editor {
-                background: var(--surface);
-                overflow-y: auto;
-                display: flex;
-                flex-direction: column;
-            }
-            .ed-sec {
-                padding: 16px 18px;
-                border-bottom: 1px solid var(--border);
-            }
-            .ed-sec:last-child {
-                border-bottom: none;
-                padding-bottom: 24px;
-            }
-            .ed-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 12px;
-            }
-            .ed-title {
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 0.09em;
-                text-transform: uppercase;
-                color: var(--muted);
-            }
-            .ed-toggle {
-                display: flex;
-                align-items: center;
-                gap: 7px;
-                cursor: pointer;
-                user-select: none;
-            }
-            .ed-toggle span {
-                font-size: 11px;
-                font-weight: 600;
-                color: var(--muted);
-            }
-            .toggle-sw {
-                position: relative;
-                width: 34px;
-                height: 18px;
-            }
-            .toggle-sw input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-                position: absolute;
-            }
-            .toggle-track {
-                position: absolute;
-                inset: 0;
-                background: var(--surface3);
-                border-radius: 20px;
-                transition: background 0.2s;
-                border: 1px solid var(--border2);
-            }
-            .toggle-thumb {
-                position: absolute;
-                left: 2px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 12px;
-                height: 12px;
-                background: var(--muted);
-                border-radius: 50%;
-                transition:
-                    left 0.2s,
-                    background 0.2s;
-            }
-            .toggle-sw input:checked + .toggle-track {
-                background: rgba(88, 101, 242, 0.5);
-                border-color: var(--accent);
-            }
-            .toggle-sw input:checked ~ .toggle-thumb {
-                left: 18px;
-                background: var(--accent);
-            }
-
-            .field-label {
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 0.07em;
-                text-transform: uppercase;
-                color: var(--muted);
-                margin-bottom: 6px;
-            }
-            .field-hint {
-                font-size: 11px;
-                color: var(--muted);
-                margin-top: 5px;
-                line-height: 1.5;
-            }
-            .row2 {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-            .row3 {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 8px;
-            }
-
-            input[type="text"],
-            input[type="url"],
-            textarea,
-            select {
-                width: 100%;
-                background: var(--surface2);
-                border: 1px solid var(--border2);
-                border-radius: var(--radius-sm);
-                color: var(--text);
-                font-family: "DM Sans", sans-serif;
-                font-size: 13px;
-                padding: 8px 11px;
-                outline: none;
-                transition: border-color 0.15s;
-                -webkit-appearance: none;
-                appearance: none;
-            }
-            input[type="text"]:focus,
-            input[type="url"]:focus,
-            textarea:focus,
-            select:focus {
-                border-color: rgba(88, 101, 242, 0.6);
-                background: var(--surface3);
-            }
-            input::placeholder,
-            textarea::placeholder {
-                color: var(--muted);
-            }
-            select {
-                cursor: pointer;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2372767d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-                background-repeat: no-repeat;
-                background-position: right 10px center;
-                padding-right: 28px;
-            }
-            textarea {
-                min-height: 90px;
-                resize: vertical;
-                line-height: 1.55;
-            }
-
-            .color-row {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .color-row input[type="color"] {
-                width: 36px;
-                height: 36px;
-                padding: 2px;
-                border-radius: var(--radius-sm);
-                cursor: pointer;
-                flex-shrink: 0;
-            }
-            .color-row input[type="text"] {
-                flex: 1;
-            }
-
-            .char-count {
-                text-align: right;
-                font-size: 11px;
-                color: var(--muted);
-                margin-top: 4px;
-            }
-            .char-count.warn {
-                color: var(--yellow);
-            }
-            .char-count.over {
-                color: var(--red);
-            }
-
-            /* FIELDS BUILDER */
-            .fields-list {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                margin-bottom: 8px;
-            }
-            .field-card {
-                background: var(--surface2);
-                border: 1px solid var(--border);
-                border-radius: var(--radius-sm);
-                padding: 10px 12px;
-                position: relative;
-            }
-            .field-card-row {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-                margin-bottom: 6px;
-            }
-            .field-card-del {
-                position: absolute;
-                top: 8px;
-                right: 8px;
-                background: none;
-                border: none;
-                color: var(--muted);
-                cursor: pointer;
-                font-size: 16px;
-                line-height: 1;
-                padding: 2px 4px;
-                border-radius: 4px;
-                transition:
-                    color 0.15s,
-                    background 0.15s;
-            }
-            .field-card-del:hover {
-                color: var(--red);
-                background: rgba(237, 66, 69, 0.1);
-            }
-            .field-inline {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                margin-top: 4px;
-            }
-            .field-inline input[type="checkbox"] {
-                width: 14px;
-                height: 14px;
-                accent-color: var(--accent);
-                cursor: pointer;
-            }
-            .field-inline label {
-                font-size: 12px;
-                color: var(--muted);
-                cursor: pointer;
-            }
-
-            .add-field-btn {
-                width: 100%;
-                padding: 7px;
-                border: 1px dashed var(--border2);
-                background: none;
-                border-radius: var(--radius-sm);
-                color: var(--muted);
-                font-size: 12px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.15s;
-                font-family: "DM Sans", sans-serif;
-                letter-spacing: 0.02em;
-            }
-            .add-field-btn:hover {
-                border-color: rgba(88, 101, 242, 0.5);
-                color: var(--accent);
-                background: rgba(88, 101, 242, 0.05);
-            }
-
-            /* WEBHOOK ROW */
-            .hook-row {
-                display: flex;
-                gap: 8px;
-                align-items: stretch;
-            }
-            .hook-row input {
-                flex: 1;
-            }
-
-            /* SEND BTN */
-            .send-btn {
-                height: 36px;
-                padding: 0 16px;
-                background: var(--accent);
-                color: #fff;
-                border: none;
-                border-radius: var(--radius-sm);
-                font-size: 13px;
-                font-weight: 700;
-                cursor: pointer;
-                white-space: nowrap;
-                transition:
-                    background 0.15s,
-                    transform 0.1s;
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                font-family: "DM Sans", sans-serif;
-                flex-shrink: 0;
-            }
-            .send-btn:hover:not(:disabled) {
-                background: var(--accent-hover);
-            }
-            .send-btn:active:not(:disabled) {
-                transform: scale(0.97);
-            }
-            .send-btn:disabled {
-                background: rgba(255, 255, 255, 0.08);
-                color: var(--muted);
-                cursor: not-allowed;
-            }
-
-            .status {
-                margin-top: 8px;
-                font-size: 12px;
-                font-weight: 600;
-                min-height: 18px;
-                color: var(--muted);
-            }
-            .status.ok {
-                color: var(--green);
-            }
-            .status.err {
-                color: var(--red);
-            }
-            .status.loading {
-                color: var(--accent);
-            }
-
-            .embed-disabled {
-                opacity: 0.45;
-                pointer-events: none;
-            }
-
-            @keyframes spin {
-                to {
-                    transform: rotate(360deg);
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>✨ SasaUbi Announcement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        syne: ['Syne', 'sans-serif'],
+                        dm: ['DM Sans', 'sans-serif'],
+                    }
                 }
             }
-            @media (max-width: 860px) {
-                .sidebar {
-                    display: none;
-                }
-                .workspace {
-                    grid-template-columns: 1fr;
-                }
-                .editor {
-                    order: -1;
-                    max-height: 60vh;
-                }
-                .preview {
-                    min-height: 300px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="app">
-            <!-- SIDEBAR -->
-            <aside class="sidebar">
-                <div class="sb-brand">
-                    <div class="sb-logo">
-                        <div class="sb-icon">📢</div>
-                        <div>
-                            <div class="sb-title">Webhook Sender</div>
-                            <div class="sb-sub">Discord Announcement Tool</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="sb-section">
-                    <p class="sb-label">Text Channels</p>
-                    <div class="sb-ch active">
-                        <svg
-                            class="sb-ch-icon"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                            />
-                        </svg>
-                        announcements
-                    </div>
-                    <div class="sb-ch">
-                        <svg
-                            class="sb-ch-icon"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                            />
-                        </svg>
-                        general
-                    </div>
-                    <div class="sb-ch">
-                        <svg
-                            class="sb-ch-icon"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                            />
-                        </svg>
-                        rules
-                    </div>
-                </div>
-                <div class="sb-foot">
-                    Kirim pesan & embed langsung<br />ke channel Discord via
-                    webhook.
-                </div>
-            </aside>
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: #06040f; color: #ede0ff; }
 
-            <!-- MAIN -->
-            <div class="main">
-                <div class="topbar">
-                    <svg
-                        class="tb-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        width="18"
-                        height="18"
-                    >
-                        <path
-                            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                        />
-                    </svg>
-                    <span class="tb-name">announcements</span>
-                    <span class="tb-sep">·</span>
-                    <span class="tb-desc">Pengumuman server</span>
-                    <span class="tb-badge">WEBHOOK</span>
-                </div>
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.04; transform: scale(0.55); }
+            50% { opacity: 0.95; transform: scale(1.45); }
+        }
+        @keyframes drift {
+            0% { transform: translate(0,0); }
+            100% { transform: translate(var(--dx,30px), var(--dy,20px)); }
+        }
+        @keyframes bob {
+            0%, 100% { transform: translateY(0px) rotate(-2deg); }
+            50% { transform: translateY(-14px) rotate(2.5deg); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
 
-                <div class="workspace">
-                    <!-- PREVIEW -->
-                    <div class="preview">
-                        <p class="pane-label">Preview pesan</p>
-                        <div class="day-div">
-                            <div class="day-line"></div>
-                            <div class="day-text" id="preview-date">
-                                Hari ini
-                            </div>
-                            <div class="day-line"></div>
-                        </div>
-                        <div class="msg-wrap">
-                            <div class="av" id="av-el">📢</div>
-                            <div class="msg-body">
-                                <div class="msg-meta">
-                                    <span class="msg-botname" id="pv-name"
-                                        >Bola Ubi</span
-                                    >
-                                    <span class="msg-badge">APP</span>
-                                    <span class="msg-ts" id="pv-time"
-                                        >Hari ini pukul 10:00</span
-                                    >
-                                </div>
-                                <div class="msg-text" id="pv-content"></div>
-                                <!-- EMBED -->
-                                <div
-                                    class="embed-preview"
-                                    id="pv-embed"
-                                    style="display: none"
-                                >
-                                    <div
-                                        class="embed-bar"
-                                        id="pv-bar"
-                                        style="background: #5865f2"
-                                    ></div>
-                                    <div class="embed-content">
-                                        <div
-                                            class="embed-author"
-                                            id="pv-author"
-                                            style="display: none"
-                                        >
-                                            <div
-                                                class="embed-author-icon"
-                                                id="pv-author-icon"
-                                                style="display: none"
-                                            >
-                                                <img
-                                                    id="pv-author-icon-img"
-                                                    src=""
-                                                    alt=""
-                                                />
-                                            </div>
-                                            <span
-                                                class="embed-author-name"
-                                                id="pv-author-name"
-                                            ></span>
-                                        </div>
-                                        <div
-                                            class="embed-thumb"
-                                            id="pv-thumb"
-                                            style="display: none"
-                                        >
-                                            <img
-                                                id="pv-thumb-img"
-                                                src=""
-                                                alt="Thumbnail"
-                                            />
-                                        </div>
-                                        <div
-                                            class="embed-title"
-                                            id="pv-title"
-                                            style="display: none"
-                                        ></div>
-                                        <div
-                                            class="embed-desc"
-                                            id="pv-desc"
-                                            style="display: none"
-                                        ></div>
-                                        <div
-                                            class="embed-fields"
-                                            id="pv-fields"
-                                            style="display: none"
-                                        ></div>
-                                        <div
-                                            class="embed-image"
-                                            id="pv-image"
-                                            style="display: none"
-                                        >
-                                            <img
-                                                id="pv-image-img"
-                                                src=""
-                                                alt=""
-                                            />
-                                        </div>
-                                        <div
-                                            class="embed-footer"
-                                            id="pv-footer"
-                                            style="display: none"
-                                        >
-                                            <div
-                                                class="embed-footer-icon"
-                                                id="pv-footer-icon"
-                                                style="display: none"
-                                            >
-                                                <img
-                                                    id="pv-footer-icon-img"
-                                                    src=""
-                                                    alt=""
-                                                />
-                                            </div>
-                                            <span
-                                                class="embed-footer-text"
-                                                id="pv-footer-text"
-                                            ></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--dur) var(--delay) infinite ease-in-out; }
+        .orb  { position: fixed; border-radius: 50%; filter: blur(110px); pointer-events: none; z-index: 0; animation: drift var(--t, 14s) ease-in-out infinite alternate; }
 
-                    <!-- EDITOR -->
-                    <div class="editor">
-                        <!-- Identitas -->
-                        <div class="ed-sec">
-                            <div class="ed-header">
-                                <span class="ed-title">Identitas Pengirim</span>
-                            </div>
-                            <div class="row2">
-                                <div>
-                                    <p class="field-label">Nama Bot</p>
-                                    <input
-                                        type="text"
-                                        id="bot-name"
-                                        placeholder="Bola Ubi"
-                                        value="Bola Ubi"
-                                        oninput="render()"
-                                    />
-                                </div>
-                                <div>
-                                    <p class="field-label">URL Avatar</p>
-                                    <input
-                                        type="url"
-                                        id="bot-avatar"
-                                        placeholder="https://..."
-                                        oninput="render()"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+        .float-icon { animation: bob 3.8s ease-in-out infinite; display: block; }
+        .send-spinner { display: inline-block; animation: spin 0.75s linear infinite; }
+        .slide-up { animation: slideUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-                        <!-- Pesan biasa -->
-                        <div class="ed-sec">
-                            <div class="ed-header">
-                                <span class="ed-title">Isi Pesan</span>
-                            </div>
-                            <textarea
-                                id="msg-content"
-                                oninput="
-                                    render();
-                                    charCount();
-                                "
-                                placeholder="Ketik pesan di sini... (opsional jika pakai embed)"
-                            ></textarea>
-                            <div class="char-count" id="char-c">0 / 2000</div>
-                            <p class="field-hint">
-                                **bold** · *italic* · `kode`
-                            </p>
-                        </div>
+        .glass-card {
+            background: rgba(255,255,255,0.022);
+            backdrop-filter: blur(28px) saturate(1.6);
+            -webkit-backdrop-filter: blur(28px) saturate(1.6);
+            border: 1px solid rgba(192,132,252,0.1);
+            border-radius: 22px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(192,132,252,0.22);
+            box-shadow: 0 12px 48px rgba(168,85,247,0.07);
+        }
 
-                        <!-- EMBED TOGGLE -->
-                        <div class="ed-sec">
-                            <div class="ed-header">
-                                <span class="ed-title">Embed</span>
-                                <label class="ed-toggle">
-                                    <span id="embed-toggle-lbl">Nonaktif</span>
-                                    <div class="toggle-sw">
-                                        <input
-                                            type="checkbox"
-                                            id="embed-on"
-                                            onchange="toggleEmbed()"
-                                        />
-                                        <div class="toggle-track"></div>
-                                        <div class="toggle-thumb"></div>
-                                    </div>
-                                </label>
-                            </div>
+        .section-label {
+            font-size: 0.63rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: rgba(192,132,252,0.55);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 1rem;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(192,132,252,0.18), transparent);
+        }
 
-                            <div id="embed-fields" class="embed-disabled">
-                                <!-- Bar color -->
-                                <div style="margin-bottom: 14px">
-                                    <p class="field-label">Warna Sidebar</p>
-                                    <div class="color-row">
-                                        <input
-                                            type="color"
-                                            id="embed-color"
-                                            value="#5865f2"
-                                            oninput="syncColor(this.value)"
-                                        />
-                                        <input
-                                            type="text"
-                                            id="embed-color-hex"
-                                            value="#5865f2"
-                                            placeholder="#5865f2"
-                                            oninput="syncColorHex(this.value)"
-                                            style="max-width: 110px"
-                                        />
-                                        <div
-                                            style="
-                                                display: flex;
-                                                gap: 5px;
-                                                flex-wrap: wrap;
-                                            "
-                                        >
-                                            <div
-                                                class="cp"
-                                                onclick="pickColor('#5865f2')"
-                                                style="
-                                                    width: 20px;
-                                                    height: 20px;
-                                                    border-radius: 4px;
-                                                    background: #5865f2;
-                                                    cursor: pointer;
-                                                    border: 1px solid
-                                                        rgba(255, 255, 255, 0.2);
-                                                "
-                                                title="Discord Blurple"
-                                            ></div>
-                                            <div
-                                                class="cp"
-                                                onclick="pickColor('#57f287')"
-                                                style="
-                                                    width: 20px;
-                                                    height: 20px;
-                                                    border-radius: 4px;
-                                                    background: #57f287;
-                                                    cursor: pointer;
-                                                    border: 1px solid
-                                                        rgba(255, 255, 255, 0.2);
-                                                "
-                                                title="Green"
-                                            ></div>
-                                            <div
-                                                class="cp"
-                                                onclick="pickColor('#faa61a')"
-                                                style="
-                                                    width: 20px;
-                                                    height: 20px;
-                                                    border-radius: 4px;
-                                                    background: #faa61a;
-                                                    cursor: pointer;
-                                                    border: 1px solid
-                                                        rgba(255, 255, 255, 0.2);
-                                                "
-                                                title="Yellow"
-                                            ></div>
-                                            <div
-                                                class="cp"
-                                                onclick="pickColor('#ed4245')"
-                                                style="
-                                                    width: 20px;
-                                                    height: 20px;
-                                                    border-radius: 4px;
-                                                    background: #ed4245;
-                                                    cursor: pointer;
-                                                    border: 1px solid
-                                                        rgba(255, 255, 255, 0.2);
-                                                "
-                                                title="Red"
-                                            ></div>
-                                            <div
-                                                class="cp"
-                                                onclick="pickColor('#eb459e')"
-                                                style="
-                                                    width: 20px;
-                                                    height: 20px;
-                                                    border-radius: 4px;
-                                                    background: #eb459e;
-                                                    cursor: pointer;
-                                                    border: 1px solid
-                                                        rgba(255, 255, 255, 0.2);
-                                                "
-                                                title="Pink"
-                                            ></div>
-                                            <div
-                                                class="cp"
-                                                onclick="pickColor('#00aff4')"
-                                                style="
-                                                    width: 20px;
-                                                    height: 20px;
-                                                    border-radius: 4px;
-                                                    background: #00aff4;
-                                                    cursor: pointer;
-                                                    border: 1px solid
-                                                        rgba(255, 255, 255, 0.2);
-                                                "
-                                                title="Cyan"
-                                            ></div>
-                                        </div>
-                                    </div>
-                                </div>
+        .input-wrap {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(192,132,252,0.13);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: border-color 0.22s, box-shadow 0.22s;
+        }
+        .input-wrap:focus-within {
+            border-color: rgba(192,132,252,0.55);
+            box-shadow: 0 0 0 3px rgba(192,132,252,0.09), 0 0 24px rgba(168,85,247,0.08);
+        }
+        .hook-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 0.88rem 1.1rem;
+            color: #ede0ff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            min-width: 0;
+        }
+        .hook-input::placeholder { color: rgba(192,132,252,0.32); }
+        .hook-toggle {
+            background: transparent;
+            border: none;
+            color: rgba(192,132,252,0.4);
+            cursor: pointer;
+            padding: 0.88rem 1rem;
+            font-size: 1rem;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .hook-toggle:hover { color: #c084fc; }
 
-                                <!-- Author -->
-                                <div style="margin-bottom: 14px">
-                                    <p class="field-label">Author</p>
-                                    <div
-                                        class="row2"
-                                        style="margin-bottom: 6px"
-                                    >
-                                        <input
-                                            type="text"
-                                            id="em-author-name"
-                                            placeholder="Nama author (opsional)"
-                                            oninput="render()"
-                                        />
-                                        <input
-                                            type="url"
-                                            id="em-author-icon"
-                                            placeholder="URL ikon author"
-                                            oninput="render()"
-                                        />
-                                    </div>
-                                </div>
+        .msg-textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(192,132,252,0.13);
+            border-radius: 14px;
+            padding: 1rem 1.1rem;
+            color: #ede0ff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            resize: vertical;
+            min-height: 136px;
+            outline: none;
+            transition: border-color 0.22s, box-shadow 0.22s;
+        }
+        .msg-textarea:focus {
+            border-color: rgba(192,132,252,0.55);
+            box-shadow: 0 0 0 3px rgba(192,132,252,0.09);
+        }
+        .msg-textarea::placeholder { color: rgba(192,132,252,0.32); }
+        .msg-textarea::-webkit-scrollbar { width: 5px; }
+        .msg-textarea::-webkit-scrollbar-track { background: transparent; }
+        .msg-textarea::-webkit-scrollbar-thumb { background: rgba(192,132,252,0.22); border-radius: 3px; }
 
-                                <!-- Title & URL -->
-                                <div style="margin-bottom: 14px">
-                                    <p class="field-label">Judul Embed</p>
-                                    <input
-                                        type="text"
-                                        id="em-title"
-                                        placeholder="Judul embed..."
-                                        oninput="render()"
-                                        style="margin-bottom: 6px"
-                                    />
-                                    <input
-                                        type="url"
-                                        id="em-title-url"
-                                        placeholder="URL (buat judul jadi link, opsional)"
-                                        oninput="render()"
-                                    />
-                                </div>
+        .fmt-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(192,132,252,0.11);
+            border-radius: 9px;
+            padding: 5px 11px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            color: rgba(192,132,252,0.65);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+        }
+        .fmt-pill:hover {
+            border-color: rgba(192,132,252,0.4);
+            background: rgba(192,132,252,0.09);
+            color: #ede0ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(168,85,247,0.12);
+        }
+        .fmt-pill:active { transform: scale(0.94) translateY(0); }
+        .fmt-pill code {
+            font-family: 'Courier New', monospace;
+            color: #c084fc;
+            font-size: 0.7em;
+            opacity: 0.7;
+        }
 
-                                <!-- Description -->
-                                <div style="margin-bottom: 14px">
-                                    <p class="field-label">Deskripsi</p>
-                                    <textarea
-                                        id="em-desc"
-                                        oninput="render()"
-                                        placeholder="Isi deskripsi embed..."
-                                        style="min-height: 80px"
-                                    ></textarea>
-                                    <p class="field-hint">
-                                        **bold** · *italic* · `kode`
-                                    </p>
-                                </div>
+        .send-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #d946ef 0%, #a855f7 45%, #7c3aed 100%);
+            background-size: 200% auto;
+            border: none;
+            border-radius: 14px;
+            padding: 1.08rem;
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.28s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.025em;
+        }
+        .send-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 55%);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .send-btn:hover:not(:disabled)::after { opacity: 1; }
+        .send-btn:hover:not(:disabled) {
+            background-position: right center;
+            transform: translateY(-3px);
+            box-shadow: 0 18px 48px rgba(168,85,247,0.45), 0 0 0 1px rgba(192,132,252,0.25);
+        }
+        .send-btn:active:not(:disabled) { transform: scale(0.98) translateY(0); }
+        .send-btn:disabled { opacity: 0.38; cursor: not-allowed; }
 
-                                <!-- Fields -->
-                                <div style="margin-bottom: 14px">
-                                    <p class="field-label">Fields</p>
-                                    <div
-                                        class="fields-list"
-                                        id="fields-list"
-                                    ></div>
-                                    <button
-                                        class="add-field-btn"
-                                        onclick="addField()"
-                                    >
-                                        ＋ Tambah Field
-                                    </button>
-                                </div>
+        .toast {
+            position: fixed;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 999;
+            white-space: nowrap;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
 
-                                <!-- Thumbnail & Image -->
-                                <div style="margin-bottom: 14px">
-                                    <p class="field-label">Gambar</p>
-                                    <div class="row2">
-                                        <div>
-                                            <input
-                                                type="url"
-                                                id="em-thumb"
-                                                placeholder="URL Thumbnail (kanan atas)"
-                                                oninput="render()"
-                                            />
-                                            <p class="field-hint">
-                                                Thumbnail (80×80)
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <input
-                                                type="url"
-                                                id="em-image"
-                                                placeholder="URL Gambar besar"
-                                                oninput="render()"
-                                            />
-                                            <p class="field-hint">
-                                                Gambar penuh di bawah
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+        .embed-desc code { background: rgba(192,132,252,0.15); color: #c084fc; padding: 1px 5px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.85em; }
+        .embed-desc strong { color: #fff; font-weight: 700; }
+        .embed-desc em { font-style: italic; color: #dcddde; }
+        .embed-desc del { text-decoration: line-through; color: #72767d; }
+        .embed-desc u { text-decoration: underline; }
+        .embed-desc .mention { background: rgba(88,101,242,0.3); color: #c9cdfb; padding: 0 3px; border-radius: 3px; }
+        .embed-desc .spoiler { background: #1e1f22; color: #1e1f22; border-radius: 3px; padding: 0 3px; cursor: pointer; user-select: none; transition: color 0.15s; }
+        .embed-desc .spoiler:hover, .embed-desc .spoiler.revealed { color: #dbdee1; }
+        .embed-desc .blockquote { display: block; border-left: 3px solid #4f545c; padding-left: 8px; color: #dcddde; margin: 1px 0; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center overflow-x-hidden relative px-4 py-10 pb-24">
 
-                                <!-- Footer -->
-                                <div>
-                                    <p class="field-label">Footer</p>
-                                    <div class="row2">
-                                        <input
-                                            type="text"
-                                            id="em-footer-text"
-                                            placeholder="Teks footer (opsional)"
-                                            oninput="render()"
-                                        />
-                                        <input
-                                            type="url"
-                                            id="em-footer-icon"
-                                            placeholder="URL ikon footer"
-                                            oninput="render()"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <div id="stars" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
 
-                        <!-- Webhook -->
-                        <div class="ed-sec">
-                            <div class="ed-header">
-                                <span class="ed-title">Kirim ke Discord</span>
-                            </div>
-                            <p class="field-label">Webhook URL</p>
-                            <div class="hook-row">
-                                <input
-                                    type="text"
-                                    id="wh-url"
-                                    placeholder="https://discord.com/api/webhooks/..."
-                                />
-                                <button
-                                    class="send-btn"
-                                    id="send-btn"
-                                    onclick="sendWebhook()"
-                                >
-                                    <svg
-                                        width="13"
-                                        height="13"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2.5"
-                                    >
-                                        <line x1="22" y1="2" x2="11" y2="13" />
-                                        <polygon
-                                            points="22 2 15 22 11 13 2 9 22 2"
-                                        />
-                                    </svg>
-                                    Kirim
-                                </button>
-                            </div>
-                            <p class="field-hint">
-                                Channel → Edit → Integrations → Webhooks → Copy
-                                URL
-                            </p>
-                            <div class="status" id="status-el"></div>
-                        </div>
-                    </div>
-                    <!-- /editor -->
-                </div>
-                <!-- /workspace -->
-            </div>
-            <!-- /main -->
+    <div class="orb" style="width:420px;height:420px;background:rgba(168,85,247,0.065);top:-130px;right:-110px;--dx:30px;--dy:40px;--t:17s;"></div>
+    <div class="orb" style="width:320px;height:320px;background:rgba(124,58,237,0.048);bottom:4%;left:-90px;--dx:-26px;--dy:-22px;--t:22s;"></div>
+    <div class="orb" style="width:240px;height:240px;background:rgba(217,70,239,0.038);top:40%;right:-60px;--dx:20px;--dy:-32px;--t:27s;"></div>
+    <div class="orb" style="width:180px;height:180px;background:rgba(192,132,252,0.035);top:60%;left:5%;--dx:-14px;--dy:20px;--t:19s;"></div>
+
+    <div class="w-full max-w-lg relative z-10">
+
+        <div class="text-center mb-12 slide-up" style="animation-delay:0s">
+            <span class="float-icon text-5xl mb-4">📣</span>
+            <h1 class="font-syne font-extrabold text-transparent bg-clip-text leading-tight" style="font-size:2.2rem;background-image:linear-gradient(130deg,#e879f9 0%,#c084fc 38%,#a78bfa 72%,#818cf8 100%);-webkit-background-clip:text;">
+                sasaubi announcement
+            </h1>
+            <p class="text-sm mt-2.5 font-dm tracking-wide" style="color:rgba(192,132,252,0.48);">
+                kirim pengumuman cantik ke discord ✨
+            </p>
         </div>
-        <!-- /app -->
 
-        <script>
-            const defaultMsg = `> **Hai, terima kasih yaa sudah gabung ke server ini 💜**
+        <div class="glass-card p-5 mb-4 slide-up" style="animation-delay:0.07s">
+            <div class="section-label">🔗 Discord Webhook URL</div>
+            <div class="input-wrap">
+                <input
+                    type="password"
+                    id="webhookUrl"
+                    class="hook-input"
+                    placeholder="https://discord.com/api/webhooks/..."
+                    value="https://discord.com/api/webhooks/1392569005776306266/wG6AVt-_9_aDSOYIw6cKhI2x4EWPHu357MctZShXb8DmU8CG4DWdJm6e7McF6T-M83Ii"
+                    readonly
+                />
+                <button class="hook-toggle" id="toggleBtn" onclick="toggleWebhook()">👁️</button>
+            </div>
+        </div>
 
-> Di sini kalian bebas ngobrol, main, dan seru-seruan bareng!
+        <div class="glass-card p-5 mb-4 slide-up" style="animation-delay:0.13s">
+            <div class="section-label">🎨 Format Discord</div>
+            <p class="text-xs mb-3.5" style="color:rgba(192,132,252,0.42);">klik untuk sisipkan format ke posisi kursor ✨</p>
+            <div class="flex flex-wrap gap-1.5">
+                <button class="fmt-pill" onclick="insertFormat('**','**')">
+                    <strong class="text-white" style="font-size:0.8rem;">B</strong> bold <code>**t**</code>
+                </button>
+                <button class="fmt-pill" onclick="insertFormat('*','*')">
+                    <em class="text-white" style="font-size:0.8rem;">I</em> italic <code>*t*</code>
+                </button>
+                <button class="fmt-pill" onclick="insertFormat('__','__')">
+                    <span class="underline text-white" style="font-size:0.8rem;">U</span> underline <code>__t__</code>
+                </button>
+                <button class="fmt-pill" onclick="insertFormat('~~','~~')">
+                    <span class="line-through text-white" style="font-size:0.8rem;">S</span> coret <code>~~t~~</code>
+                </button>
+                <button class="fmt-pill" onclick="insertFormat('`','`')">
+                    <span style="color:#c084fc;font-family:monospace;font-size:0.78em;">&lt;/&gt;</span> kode <code>`t`</code>
+                </button>
+                <button class="fmt-pill" onclick="insertFormat('||','||')">🙈 spoiler <code>||t||</code></button>
+                <button class="fmt-pill" onclick="insertQuote()">❝ quote <code>&gt; t</code></button>
+                <button class="fmt-pill" onclick="insertText('@everyone')">
+                    <span style="color:#c9cdfb;font-weight:700;">@</span> everyone
+                </button>
+                <button class="fmt-pill" onclick="insertText('@here')">
+                    <span style="color:#c9cdfb;font-weight:700;">@</span> here
+                </button>
+                <button class="fmt-pill" onclick="insertText('\n─────────────────\n')">➖ garis pemisah</button>
+            </div>
+        </div>
 
-> Tapi walau begitu, ada beberapa peraturan yang harus kalian patuhi ^^
+        <div class="glass-card p-5 mb-4 slide-up" style="animation-delay:0.19s">
+            <div class="section-label">✏️ Tulis Pesanmu</div>
+            <textarea
+                class="msg-textarea"
+                id="customMsg"
+                placeholder="tulis pengumuman kamu di sini...&#10;&#10;contoh: halloooo hari ini **sasaubi** live pukul 21.00 yaa! 🔴&#10;&#10;format: **bold**, *italic*, ~~coret~~, `kode`, ||spoiler|| ✨"
+                oninput="handleInput(this)"
+            ></textarea>
+            <div class="flex items-center gap-3 mt-2.5">
+                <div class="flex-1 rounded-full overflow-hidden" style="height:3px;background:rgba(255,255,255,0.06);">
+                    <div id="charBar" class="h-full rounded-full transition-all duration-300" style="width:0%;background:linear-gradient(90deg,#d946ef,#a855f7);"></div>
+                </div>
+                <span id="charCount" class="text-xs flex-shrink-0 tabular-nums" style="color:rgba(192,132,252,0.48);">0 / 2000</span>
+            </div>
+        </div>
 
-> **〔 📜 PERATURAN SERVER 〕**
+        <div class="glass-card p-5 mb-5 slide-up" style="animation-delay:0.25s">
+            <div class="section-label">👁️ Preview Embed Discord</div>
+            <div class="rounded-xl p-4" style="background:#313338;">
+                <div class="flex gap-3 items-start">
+                    <img
+                        src="https://raw.githubusercontent.com/RehanDias/s0urce/refs/heads/main/sasaubi.jpeg"
+                        alt="SasaUbi"
+                        class="rounded-full flex-shrink-0 object-cover"
+                        style="width:40px;height:40px;"
+                        onerror="this.style.display='none';document.getElementById('avatarFallback').style.display='flex';"
+                    />
+                    <div
+                        id="avatarFallback"
+                        class="rounded-full flex-shrink-0 items-center justify-center text-lg"
+                        style="width:40px;height:40px;background:linear-gradient(135deg,#d946ef,#7c3aed);display:none;"
+                    >💜</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center flex-wrap" style="gap:5px;">
+                            <span class="font-bold text-sm" style="color:#c084fc;">SasaUbi Berbicara</span>
+                            <span class="text-white font-bold" style="font-size:0.58rem;background:#5865f2;padding:2px 5px;border-radius:3px;">BOT</span>
+                            <span id="previewTs" style="font-size:0.7rem;color:#72767d;">Hari ini pukul 00:00</span>
+                        </div>
+                        <div class="relative overflow-hidden rounded-lg mt-2" style="background:#2b2d31;">
+                            <div class="absolute left-0 top-0 bottom-0" style="width:4px;background:linear-gradient(180deg,#d946ef,#7c3aed);border-radius:4px 0 0 4px;"></div>
+                            <div style="padding:0.9rem 1rem 0.9rem 1.25rem;">
+                                <div
+                                    id="previewMsg"
+                                    class="embed-desc break-words"
+                                    style="font-size:0.86rem;color:#dbdee1;line-height:1.6;min-height:1.2em;"
+                                >
+                                    <span style="color:#72767d;font-style:italic;">tulis pesan kamu di atas ya~ ☁️</span>
+                                </div>
+                                <div class="flex items-center mt-2.5" style="gap:5px;font-size:0.72rem;color:#80848e;">
+                                    <span>💜</span>
+                                    <span>sasaubi.stream</span>
+                                    <span>•</span>
+                                    <span id="previewDate">–</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-> **1.** **Saling menghargai satu sama lain** yaa, jangan toxic atau cari ribut. Karena server ini pengen jadi tempat yang nyaman dan ramah buat semua orang.
+        <button
+            class="send-btn slide-up"
+            id="sendBtn"
+            onclick="sendAnnouncement()"
+            style="animation-delay:0.31s;"
+        >
+            <span>✨</span><span>Kirim ke Discord</span>
+        </button>
 
-> **2.** **Jangan spam chat, emoji, sticker, atau mention** orang terus-terusan. Chill ajaa ngga sih?
+    </div>
 
-> **3.** **Kirim pesan di chanel yang sesuai** yaa, hehe. Biar ngga berantakan.
+    <div
+        id="toast"
+        class="toast flex items-center gap-2.5 text-sm font-semibold"
+        style="background:rgba(10,7,22,0.96);border:1px solid rgba(192,132,252,0.18);border-radius:50px;padding:0.8rem 1.55rem;box-shadow:0 12px 48px rgba(0,0,0,0.55),0 0 0 1px rgba(192,132,252,0.08);"
+    >
+        <span id="toastIcon">✅</span>
+        <span id="toastMsg">Berhasil!</span>
+    </div>
 
-> **4.** **Dilarang kirim konten NSFW, gore, atau hal yang terlalu vulgar.**
-
-> **5.** **Bercanda boleh**, tapi jangan sampai bikin orang lain ngga nyaman (seperti rasisme dan diskriminasi). Okay?
-
-> **6.** **Jangan sebar data pribadi siapa pun** yaa, termasuk nomor, foto, dan akun orang lain.
-
-> **7.** **Kalau ada masalah**, jangan langsung ribut di chat yaa. Kalian boleh langsung kabarin Ubi.
-
-> Hmm kayanya segitu aja, yang penting di sini kita seru-seruan bareng, nambah temen, dan sama-sama bikin suasana yang nyaman 🤗
-
-> Semoga betah ya, dan selamat bergabung di dunia perumbi-umbian 😈`;
-
-            let embedActive = false;
-            let fields = [];
-
-            function md(t) {
-                return t
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-                    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-                    .replace(/`(.+?)`/g, "<code>$1</code>")
-                    .replace(/\n/g, "<br>");
+    <script>
+        (function () {
+            const el = document.getElementById('stars');
+            for (let i = 0; i < 120; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                const sz = Math.random() * 2.4 + 0.2;
+                s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*5.5}s;--delay:${Math.random()*7}s`;
+                el.appendChild(s);
             }
+        })();
 
-            function toggleEmbed() {
-                embedActive = document.getElementById("embed-on").checked;
-                document.getElementById("embed-toggle-lbl").textContent =
-                    embedActive ? "Aktif" : "Nonaktif";
-                document
-                    .getElementById("embed-fields")
-                    .classList.toggle("embed-disabled", !embedActive);
-                render();
-            }
+        const BOT_USERNAME = 'SasaUbi Berbicara';
+        const BOT_AVATAR   = 'https://raw.githubusercontent.com/RehanDias/s0urce/refs/heads/main/sasaubi.jpeg';
 
-            function syncColor(v) {
-                document.getElementById("embed-color-hex").value = v;
-                render();
-            }
-            function syncColorHex(v) {
-                if (/^#[0-9a-f]{6}$/i.test(v))
-                    document.getElementById("embed-color").value = v;
-                render();
-            }
-            function pickColor(c) {
-                document.getElementById("embed-color").value = c;
-                document.getElementById("embed-color-hex").value = c;
-                render();
-            }
+        function updateTs() {
+            const n = new Date();
+            const h = String(n.getHours()).padStart(2,'0');
+            const m = String(n.getMinutes()).padStart(2,'0');
+            document.getElementById('previewTs').textContent = 'Hari ini pukul ' + h + ':' + m;
+            document.getElementById('previewDate').textContent = n.toLocaleDateString('id-ID', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
+        }
+        updateTs();
+        setInterval(updateTs, 15000);
 
-            function addField() {
-                const id = Date.now();
-                fields.push({ id, name: "", value: "", inline: false });
-                renderFieldList();
-                render();
-            }
-            function removeField(id) {
-                fields = fields.filter((f) => f.id !== id);
-                renderFieldList();
-                render();
-            }
-            function renderFieldList() {
-                const list = document.getElementById("fields-list");
-                list.innerHTML = fields
-                    .map(
-                        (f) => `
-    <div class="field-card" id="fc-${f.id}">
-      <button class="field-card-del" onclick="removeField(${f.id})" title="Hapus field">✕</button>
-      <div class="field-card-row">
-        <div><p class="field-label">Nama</p><input type="text" placeholder="Nama field" value="${escHtml(f.name)}" oninput="updateField(${f.id},'name',this.value)"/></div>
-        <div><p class="field-label">Nilai</p><input type="text" placeholder="Nilai field" value="${escHtml(f.value)}" oninput="updateField(${f.id},'value',this.value)"/></div>
-      </div>
-      <div class="field-inline">
-        <input type="checkbox" id="fi-${f.id}" ${f.inline ? "checked" : ""} onchange="updateField(${f.id},'inline',this.checked)"/>
-        <label for="fi-${f.id}">Inline (tampil berdampingan)</label>
-      </div>
-    </div>`,
-                    )
-                    .join("");
-            }
-            function escHtml(s) {
-                return String(s)
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;");
-            }
-            function updateField(id, key, val) {
-                const f = fields.find((x) => x.id === id);
-                if (f) f[key] = val;
-                render();
-            }
+        function toggleWebhook() {
+            const inp = document.getElementById('webhookUrl');
+            const btn = document.getElementById('toggleBtn');
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            btn.textContent = inp.type === 'password' ? '👁️' : '🙈';
+        }
 
-            function show(id, v) {
-                document.getElementById(id).style.display = v ? "" : "none";
-            }
-            function t(id) {
-                return (document.getElementById(id) || {}).value || "";
-            }
+        function escHtml(t) {
+            return t
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;');
+        }
 
-            function render() {
-                // Identity
-                const name = t("bot-name") || "Bot";
-                const avatarUrl = t("bot-avatar");
-                document.getElementById("pv-name").textContent = name;
-                const avEl = document.getElementById("av-el");
-                if (avatarUrl) {
-                    avEl.innerHTML = `<img src="${escHtml(avatarUrl)}" onerror="this.parentElement.innerHTML='📢'" alt=""/>`;
+        function parseDiscordMarkdown(raw) {
+            let t = escHtml(raw);
+            t = t.replace(/\|\|([\s\S]+?)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
+            t = t.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
+            t = t.replace(/__([\s\S]+?)__/g, '<u>$1</u>');
+            t = t.replace(/\*([^\*\n]+?)\*/g, '<em>$1</em>');
+            t = t.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
+            t = t.replace(/~~([\s\S]+?)~~/g, '<del>$1</del>');
+            t = t.replace(/`([^`]+?)`/g, '<code>$1</code>');
+            t = t.replace(/@everyone/g, '<span class="mention">@everyone</span>');
+            t = t.replace(/@here/g, '<span class="mention">@here</span>');
+            t = t.replace(/^&gt; (.+)$/gm, '<span class="blockquote">$1</span>');
+            t = t.replace(/\n/g, '<br>');
+            return t;
+        }
+
+        function updatePreview() {
+            const raw = document.getElementById('customMsg').value;
+            const el  = document.getElementById('previewMsg');
+            el.innerHTML = raw.trim()
+                ? parseDiscordMarkdown(raw)
+                : '<span style="color:#72767d;font-style:italic;">tulis pesan kamu di atas ya~ ☁️</span>';
+        }
+
+        function handleInput(el) {
+            const len = el.value.length;
+            const cc  = document.getElementById('charCount');
+            const bar = document.getElementById('charBar');
+            cc.textContent  = len + ' / 2000';
+            cc.style.color  = len > 1900 ? '#f472b6' : 'rgba(192,132,252,0.48)';
+            bar.style.width = Math.min((len / 2000) * 100, 100) + '%';
+            bar.style.background = len > 1900
+                ? 'linear-gradient(90deg,#f472b6,#ec4899)'
+                : 'linear-gradient(90deg,#d946ef,#a855f7)';
+            updatePreview();
+        }
+
+        function getTA() { return document.getElementById('customMsg'); }
+
+        function insertFormat(before, after) {
+            const ta    = getTA();
+            ta.focus();
+            const start    = ta.selectionStart;
+            const end      = ta.selectionEnd;
+            const selected = ta.value.substring(start, end);
+            const inner    = selected || 'teks';
+            ta.setRangeText(before + inner + after, start, end, 'end');
+            if (!selected) ta.setSelectionRange(start + before.length, start + before.length + inner.length);
+            handleInput(ta);
+        }
+
+        function insertText(text) {
+            const ta = getTA();
+            ta.focus();
+            ta.setRangeText(text, ta.selectionStart, ta.selectionStart, 'end');
+            handleInput(ta);
+        }
+
+        function insertQuote() {
+            const ta  = getTA();
+            ta.focus();
+            const s   = ta.selectionStart;
+            const pre = s === 0 || ta.value[s - 1] === '\n' ? '> ' : '\n> ';
+            ta.setRangeText(pre, s, s, 'end');
+            handleInput(ta);
+        }
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.classList.remove('show');
+            t.style.borderColor = type === 'success' ? 'rgba(74,222,128,0.3)' : 'rgba(248,113,113,0.3)';
+            t.style.color       = type === 'success' ? '#4ade80' : '#f87171';
+            document.getElementById('toastIcon').textContent = type === 'success' ? '✅' : '❌';
+            document.getElementById('toastMsg').textContent  = msg;
+            void t.offsetWidth;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        async function sendAnnouncement() {
+            const url = document.getElementById('webhookUrl').value.trim();
+            const msg = document.getElementById('customMsg').value.trim();
+            if (!msg) { showToast('Tulis pesan kamu dulu ya!', 'error'); return; }
+            if (msg.length > 2000) { showToast('Pesan terlalu panjang! Maks 2000 karakter', 'error'); return; }
+
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="send-spinner">⏳</span><span>Mengirim...</span>';
+
+            const payload = {
+                username:   BOT_USERNAME,
+                avatar_url: BOT_AVATAR,
+                embeds: [{
+                    color:       12615932,
+                    description: msg,
+                    footer:      { text: '💜 sasaubi.stream' },
+                    timestamp:   new Date().toISOString()
+                }]
+            };
+
+            try {
+                const res = await fetch(url, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(payload)
+                });
+                if (res.ok || res.status === 204) {
+                    showToast('Announcement berhasil dikirim! 🎉', 'success');
                 } else {
-                    avEl.innerHTML = "📢";
+                    let errMsg = 'cek webhook URL-nya ya';
+                    try { const d = await res.json(); errMsg = d.message || errMsg; } catch (_) {}
+                    showToast('Gagal dikirim: ' + errMsg, 'error');
                 }
-
-                // Timestamp
-                const now = new Date();
-                document.getElementById("pv-time").textContent =
-                    `Hari ini pukul ${now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`;
-                document.getElementById("preview-date").textContent =
-                    now.toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                    });
-
-                // Content
-                const content = t("msg-content");
-                document.getElementById("pv-content").innerHTML = content
-                    ? md(content)
-                    : "";
-
-                // Embed
-                const emWrap = document.getElementById("pv-embed");
-                if (!embedActive) {
-                    emWrap.style.display = "none";
-                    return;
-                }
-
-                const emColor = t("embed-color-hex") || "#5865f2";
-                const emAuthorName = t("em-author-name");
-                const emAuthorIcon = t("em-author-icon");
-                const emTitle = t("em-title");
-                const emTitleUrl = t("em-title-url");
-                const emDesc = t("em-desc");
-                const emThumb = t("em-thumb");
-                const emImage = t("em-image");
-                const emFooterText = t("em-footer-text");
-                const emFooterIcon = t("em-footer-icon");
-
-                const hasContent =
-                    emAuthorName ||
-                    emTitle ||
-                    emDesc ||
-                    emFooterText ||
-                    emThumb ||
-                    emImage ||
-                    fields.some((f) => f.name || f.value);
-                show("pv-embed", hasContent);
-
-                document.getElementById("pv-bar").style.background =
-                    /^#[0-9a-f]{6}$/i.test(emColor) ? emColor : "#5865f2";
-
-                // Author
-                const showAuthor = !!emAuthorName;
-                show("pv-author", showAuthor);
-                if (showAuthor) {
-                    document.getElementById("pv-author-name").textContent =
-                        emAuthorName;
-                    show("pv-author-icon", !!emAuthorIcon);
-                    if (emAuthorIcon)
-                        document.getElementById("pv-author-icon-img").src =
-                            emAuthorIcon;
-                }
-
-                // Thumb
-                show("pv-thumb", !!emThumb);
-                if (emThumb)
-                    document.getElementById("pv-thumb-img").src = emThumb;
-
-                // Title
-                show("pv-title", !!emTitle);
-                if (emTitle) {
-                    const titleEl = document.getElementById("pv-title");
-                    titleEl.innerHTML = emTitleUrl
-                        ? `<a href="${escHtml(emTitleUrl)}" target="_blank">${escHtml(emTitle)}</a>`
-                        : escHtml(emTitle);
-                }
-
-                // Desc
-                show("pv-desc", !!emDesc);
-                if (emDesc)
-                    document.getElementById("pv-desc").innerHTML = md(emDesc);
-
-                // Fields
-                const hasFields = fields.some((f) => f.name || f.value);
-                show("pv-fields", hasFields);
-                if (hasFields) {
-                    // Count inline runs
-                    const pvf = document.getElementById("pv-fields");
-                    // Build grid: detect consecutive inline groups
-                    let rows = [];
-                    let cur = [];
-                    for (const f of fields) {
-                        if (f.inline) {
-                            cur.push(f);
-                        } else {
-                            if (cur.length)
-                                rows.push({ inline: true, items: cur });
-                            cur = [];
-                            rows.push({ inline: false, items: [f] });
-                        }
-                    }
-                    if (cur.length) rows.push({ inline: true, items: cur });
-                    pvf.innerHTML = rows
-                        .map((r) => {
-                            if (r.inline) {
-                                return (
-                                    `<div style="display:grid;grid-template-columns:repeat(${Math.min(r.items.length, 3)},1fr);gap:8px">` +
-                                    r.items
-                                        .map(
-                                            (f) =>
-                                                `<div class="embed-field"><div class="embed-field-name">${escHtml(f.name)}</div><div class="embed-field-value">${md(f.value)}</div></div>`,
-                                        )
-                                        .join("") +
-                                    "</div>"
-                                );
-                            } else {
-                                const f = r.items[0];
-                                return `<div class="embed-field"><div class="embed-field-name">${escHtml(f.name)}</div><div class="embed-field-value">${md(f.value)}</div></div>`;
-                            }
-                        })
-                        .join("");
-                }
-
-                // Image
-                show("pv-image", !!emImage);
-                if (emImage)
-                    document.getElementById("pv-image-img").src = emImage;
-
-                // Footer
-                show("pv-footer", !!emFooterText);
-                if (emFooterText) {
-                    document.getElementById("pv-footer-text").textContent =
-                        emFooterText;
-                    show("pv-footer-icon", !!emFooterIcon);
-                    if (emFooterIcon)
-                        document.getElementById("pv-footer-icon-img").src =
-                            emFooterIcon;
-                }
-            }
-
-            function charCount() {
-                const len = t("msg-content").length;
-                const el = document.getElementById("char-c");
-                el.textContent = `${len} / 2000`;
-                el.className =
-                    "char-count" +
-                    (len > 2000 ? " over" : len > 1800 ? " warn" : "");
-            }
-
-            function setStatus(cls, msg) {
-                const el = document.getElementById("status-el");
-                el.textContent = msg;
-                el.className = "status " + cls;
-            }
-
-            async function sendWebhook() {
-                const whUrl = t("wh-url");
-                const content = t("msg-content");
-                const username = t("bot-name") || "Bot";
-                const avatarUrl = t("bot-avatar");
-                const btn = document.getElementById("send-btn");
-
-                if (!whUrl) {
-                    setStatus("err", "❌ Masukkan webhook URL dulu ya!");
-                    return;
-                }
-                if (
-                    !whUrl.startsWith("https://discord.com/api/webhooks/") &&
-                    !whUrl.startsWith(
-                        "https://ptb.discord.com/api/webhooks/",
-                    ) &&
-                    !whUrl.startsWith(
-                        "https://canary.discord.com/api/webhooks/",
-                    )
-                ) {
-                    setStatus("err", "❌ URL tidak valid.");
-                    return;
-                }
-                if (!content && !embedActive) {
-                    setStatus("err", "❌ Pesan masih kosong!");
-                    return;
-                }
-                if (content.length > 2000) {
-                    setStatus(
-                        "err",
-                        "❌ Pesan terlalu panjang (maks 2000 karakter).",
-                    );
-                    return;
-                }
-
-                btn.disabled = true;
-                btn.innerHTML =
-                    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Mengirim...';
-                setStatus("loading", "⏳ Menghubungkan ke Discord...");
-
-                const payload = { username };
-                if (avatarUrl) payload.avatar_url = avatarUrl;
-                if (content) payload.content = content;
-
-                if (embedActive) {
-                    const emColor = t("embed-color-hex") || "#5865f2";
-                    const emTitle = t("em-title");
-                    const emDesc = t("em-desc");
-                    const emFooterText = t("em-footer-text");
-                    const emThumb = t("em-thumb");
-                    const emImage = t("em-image");
-                    const emAuthorName = t("em-author-name");
-                    const emAuthorIcon = t("em-author-icon");
-                    const emTitleUrl = t("em-title-url");
-                    const emFooterIcon = t("em-footer-icon");
-
-                    const colorInt =
-                        parseInt(emColor.replace("#", ""), 16) || 5793266;
-                    const embed = { color: colorInt };
-                    if (emTitle) embed.title = emTitle;
-                    if (emTitleUrl) embed.url = emTitleUrl;
-                    if (emDesc) embed.description = emDesc;
-                    if (emAuthorName) {
-                        embed.author = { name: emAuthorName };
-                        if (emAuthorIcon) embed.author.icon_url = emAuthorIcon;
-                    }
-                    if (emThumb) embed.thumbnail = { url: emThumb };
-                    if (emImage) embed.image = { url: emImage };
-                    if (emFooterText) {
-                        embed.footer = { text: emFooterText };
-                        if (emFooterIcon) embed.footer.icon_url = emFooterIcon;
-                    }
-                    if (fields.length) {
-                        embed.fields = fields
-                            .filter((f) => f.name || f.value)
-                            .map((f) => ({
-                                name: f.name || "\u200b",
-                                value: f.value || "\u200b",
-                                inline: f.inline,
-                            }));
-                    }
-                    payload.embeds = [embed];
-                }
-
-                try {
-                    const res = await fetch(whUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload),
-                    });
-                    if (res.ok || res.status === 204) {
-                        setStatus(
-                            "ok",
-                            "✅ Pesan berhasil dikirim ke Discord!",
-                        );
-                    } else {
-                        const err = await res.json().catch(() => ({}));
-                        setStatus(
-                            "err",
-                            `❌ Gagal: ${err.message || "HTTP " + res.status}`,
-                        );
-                    }
-                } catch (e) {
-                    setStatus(
-                        "err",
-                        "❌ Gagal terhubung. Cek koneksi internetmu ya.",
-                    );
-                }
-
+            } catch (e) {
+                showToast('Koneksi error. Cek URL & internet ya!', 'error');
+            } finally {
                 btn.disabled = false;
-                btn.innerHTML =
-                    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Kirim';
+                btn.innerHTML = '<span>✨</span><span>Kirim ke Discord</span>';
             }
-
-            // Init
-            document.getElementById("msg-content").value = defaultMsg;
-            render();
-            charCount();
-        </script>
-    </body>
+        }
+    </script>
+</body>
 </html>
